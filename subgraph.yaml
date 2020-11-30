@@ -1,0 +1,38 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: ropsten
+    source:
+      address: "0xE11b26DF0138D4809102E0b3A9DD55612A99b51B"
+      abi: Contract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - LogDeploy
+        - LogDeposit
+        - LogFlashLoan
+        - LogSetMasterContractApproval
+        - LogTransfer
+        - LogWithdraw
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: LogDeploy(indexed address,bytes,indexed address)
+          handler: handleLogDeploy
+        - event: LogDeposit(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleLogDeposit
+        - event: LogFlashLoan(indexed address,indexed address,uint256,uint256)
+          handler: handleLogFlashLoan
+        - event: LogSetMasterContractApproval(indexed address,indexed address,indexed bool)
+          handler: handleLogSetMasterContractApproval
+        - event: LogTransfer(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleLogTransfer
+        - event: LogWithdraw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleLogWithdraw
+      file: ./src/mapping.ts
