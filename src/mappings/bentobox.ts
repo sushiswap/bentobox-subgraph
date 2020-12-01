@@ -1,5 +1,5 @@
 import { Address, BigInt, ByteArray, dataSource, log } from "@graphprotocol/graph-ts";
-import { BentoBox, LendingPair } from "../../generated/schema";
+import { BentoBox, LendingPair, Token } from "../../generated/schema";
 import {
   BentoBox as BentoBoxContract,
   LogDeploy,
@@ -171,6 +171,19 @@ export function handleLogDeposit(event: LogDeposit): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ]);
+  let bentoAddress = event.address.toHex();
+  let token = Token.load(event.params.token.toHex());
+
+  if (token == null) {
+    token = new Token(event.params.token.toHex());
+    token.bentoBox = bentoAddress;
+    token.totalShare = BigInt.fromI32(0);
+    token.totalAmount = BigInt.fromI32(0);
+  }
+
+  token.totalAmount = token.totalAmount.plus(event.params.amount);
+  token.totalShare = token.totalShare.plus(event.params.share);
+  token.save();
 }
 
 export function handleLogFlashLoan(event: LogFlashLoan): void {
@@ -180,6 +193,9 @@ export function handleLogFlashLoan(event: LogFlashLoan): void {
     event.params.token.toHex(),
     event.params.user.toHex(),
   ]);
+  let token = Token.load(event.params.token.toHex());
+  token.totalAmount = token.totalAmount.plus(event.params.feeAmount);
+  token.save();
 }
 
 export function handleLogSetMasterContractApproval(
@@ -210,4 +226,8 @@ export function handleLogWithdraw(event: LogWithdraw): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ]);
+  let token = Token.load(event.params.token.toHex());
+  token.totalAmount = token.totalAmount.minus(event.params.amount);
+  token.totalShare = token.totalShare.minus(event.params.share);
+  token.save();
 }

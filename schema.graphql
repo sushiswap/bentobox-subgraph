@@ -3,7 +3,15 @@ type BentoBox @entity {
   # Contract ID
   id: ID!
   lendingPairs: [LendingPair!]! @derivedFrom(field: "bentoBox")
+  tokens: [Token!] @derivedFrom(field: "bentoBox")
   WETH: Bytes!
+}
+
+type Token @entity {
+  id: ID!
+  bentoBox: BentoBox!
+  totalShare: BigInt!
+  totalAmount: BigInt!
 }
 
 type LendingPair @entity {
