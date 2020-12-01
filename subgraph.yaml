@@ -1,16 +1,18 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
+  # BentoBox
   - kind: ethereum/contract
-    name: Contract
-    network: ropsten
+    name: BentoBox
+    network: 'ropsten'
     source:
-      address: "0xE11b26DF0138D4809102E0b3A9DD55612A99b51B"
-      abi: Contract
+      address: '0xeB164C98C804d09F2b45C27e6c70528B46e2e0B7'
+      abi: BentoBox
+      startBlock: 9170465
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - LogDeploy
@@ -20,8 +22,12 @@ dataSources:
         - LogTransfer
         - LogWithdraw
       abis:
-        - name: Contract
-          file: ./abis/Contract.json
+        - name: BentoBox
+          file: ./abis/BentoBox.json
+        - name: LendingPair
+          file: ./abis/LendingPair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: LogDeploy(indexed address,bytes,indexed address)
           handler: handleLogDeploy
@@ -35,4 +41,90 @@ dataSources:
           handler: handleLogTransfer
         - event: LogWithdraw(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleLogWithdraw
-      file: ./src/mapping.ts
+      file: ./src/mappings/bentobox.ts
+
+  # SushiSwap Swapper
+  # - kind: ethereum/contract
+  #   name: SushiSwapSwapper
+  #   network: ropsten
+  #   source:
+  #     address: "0x451BB5F4dd2C4933CccdB15444aF2aEA2A084f89"
+  #     abi: SushiSwapSwapper
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+
+  #     abis:
+  #       - name: SushiSwapSwapper
+  #         file: ./abis/SushiSwapSwapper.json
+  #     eventHandlers:
+
+  #     file: ./src/mapping.ts
+
+  # Pegged Oracle
+  # - kind: ethereum/contract
+  #   name: PeggedOracle
+  #   network: ropsten
+  #   source:
+  #     address: "0xb5C8A2d1C8d393Dace7b3C1D98f35d645A1cD1fc"
+  #     abi: PeggedOracle
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - PeggedOracle
+  #     abis:
+  #       - name: PeggedOracle
+  #         file: ./abis/PeggedOracle.json
+  #     eventHandlers:
+  #     file: ./src/mappings/pegged-oracle.ts
+      
+templates:
+  - kind: ethereum/contract
+    name: LendingPair
+    network: "ropsten"
+    source:
+      abi: LendingPair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - LogAddAsset
+        - LogAddBorrow
+        - LogAddCollateral
+        - LogExchangeRate
+        - LogRemoveAsset
+        - LogRemoveBorrow
+        - LogRemoveCollateral
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: LendingPair
+          file: ./abis/LendingPair.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: LogAddAsset(indexed address,uint256,uint256)
+          handler: handleLogAddAsset
+        - event: LogAddBorrow(indexed address,uint256,uint256)
+          handler: handleLogAddBorrow
+        - event: LogAddCollateral(indexed address,uint256)
+          handler: handleLogAddCollateral
+        - event: LogExchangeRate(uint256)
+          handler: handleLogExchangeRate
+        - event: LogRemoveAsset(indexed address,uint256,uint256)
+          handler: handleLogRemoveAsset
+        - event: LogRemoveBorrow(indexed address,uint256,uint256)
+          handler: handleLogRemoveBorrow
+        - event: LogRemoveCollateral(indexed address,uint256)
+          handler: handleLogRemoveCollateral
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/mappings/pair.ts

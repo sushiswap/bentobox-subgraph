@@ -1,0 +1,89 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: BentoBox
+    network: ropsten
+    source:
+      address: "0xeB164C98C804d09F2b45C27e6c70528B46e2e0B7"
+      abi: BentoBox
+      startBlock: 9170465
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LogDeploy
+        - LogDeposit
+        - LogFlashLoan
+        - LogSetMasterContractApproval
+        - LogTransfer
+        - LogWithdraw
+      abis:
+        - name: BentoBox
+          file: BentoBox/abis/BentoBox.json
+        - name: LendingPair
+          file: BentoBox/abis/LendingPair.json
+        - name: ERC20
+          file: BentoBox/abis/ERC20.json
+      eventHandlers:
+        - event: LogDeploy(indexed address,bytes,indexed address)
+          handler: handleLogDeploy
+        - event: LogDeposit(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleLogDeposit
+        - event: LogFlashLoan(indexed address,indexed address,uint256,uint256)
+          handler: handleLogFlashLoan
+        - event: LogSetMasterContractApproval(indexed address,indexed address,indexed bool)
+          handler: handleLogSetMasterContractApproval
+        - event: LogTransfer(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleLogTransfer
+        - event: LogWithdraw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleLogWithdraw
+      file: BentoBox/BentoBox.wasm
+templates:
+  - kind: ethereum/contract
+    name: LendingPair
+    network: ropsten
+    source:
+      abi: LendingPair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - LogAddAsset
+        - LogAddBorrow
+        - LogAddCollateral
+        - LogExchangeRate
+        - LogRemoveAsset
+        - LogRemoveBorrow
+        - LogRemoveCollateral
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: LendingPair
+          file: LendingPair/abis/LendingPair.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: LogAddAsset(indexed address,uint256,uint256)
+          handler: handleLogAddAsset
+        - event: LogAddBorrow(indexed address,uint256,uint256)
+          handler: handleLogAddBorrow
+        - event: LogAddCollateral(indexed address,uint256)
+          handler: handleLogAddCollateral
+        - event: LogExchangeRate(uint256)
+          handler: handleLogExchangeRate
+        - event: LogRemoveAsset(indexed address,uint256,uint256)
+          handler: handleLogRemoveAsset
+        - event: LogRemoveBorrow(indexed address,uint256,uint256)
+          handler: handleLogRemoveBorrow
+        - event: LogRemoveCollateral(indexed address,uint256)
+          handler: handleLogRemoveCollateral
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: templates/LendingPair/LendingPair.wasm

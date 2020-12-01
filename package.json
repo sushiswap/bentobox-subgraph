@@ -4,13 +4,18 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ matthewlilley/bentobox",
-    "create-local": "graph create --node http://localhost:8020/ matthewlilley/bentobox",
-    "remove-local": "graph remove --node http://localhost:8020/ matthewlilley/bentobox",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 matthewlilley/bentobox"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ matthewlilley/bento",
+    "create-local": "graph create --node http://localhost:8020/ matthewlilley/bento",
+    "remove-local": "graph remove --node http://localhost:8020/ matthewlilley/bento",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 matthewlilley/bento",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:ropsten": "mustache config/ropsten.json subgraph.template.yaml > subgraph.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.19.0",
     "@graphprotocol/graph-ts": "0.19.0"
+  },
+  "devDependencies": {
+    "mustache": "^4.0.1"
   }
 }
