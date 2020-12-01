@@ -11,6 +11,7 @@ import {
   OwnershipTransferred,
   Transfer
 } from "../../generated/templates/LendingPair/LendingPair"
+import { LendingPair } from "../../generated/schema";
 
 import { log } from '@graphprotocol/graph-ts'
 
@@ -114,6 +115,11 @@ export function handleLogAddAsset(event: LogAddAsset): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ]);
+
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.totalSupply = lendingPair.totalSupply.plus(event.params.fraction);
+  lendingPair.totalAssetShare = lendingPair.totalAssetShare.plus(event.params.share);
+  lendingPair.save();
 }
 
 export function handleLogAddBorrow(event: LogAddBorrow): void {
@@ -122,6 +128,10 @@ export function handleLogAddBorrow(event: LogAddBorrow): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ]);
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.totalBorrowFraction = lendingPair.totalBorrowFraction.plus(event.params.fraction);
+  lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.plus(event.params.share);
+  lendingPair.save();
 }
 
 export function handleLogAddCollateral(event: LogAddCollateral): void {
@@ -129,12 +139,18 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ]);
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.plus(event.params.share);
+  lendingPair.save()
 }
 
 export function handleLogExchangeRate(event: LogExchangeRate): void {
   log.info("[BentoBox:LendingPair] Log Exchange Rate {}", [
     event.params.rate.toString(),
   ]);
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.exchangeRate = lendingPair.exchangeRate.plus(event.params.rate);
+  lendingPair.save()
 }
 
 export function handleLogRemoveAsset(event: LogRemoveAsset): void {
@@ -143,6 +159,10 @@ export function handleLogRemoveAsset(event: LogRemoveAsset): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ]);
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.totalSupply = lendingPair.totalSupply.minus(event.params.fraction);
+  lendingPair.totalAssetShare = lendingPair.totalAssetShare.minus(event.params.share);
+  lendingPair.save()
 }
 
 export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
@@ -151,6 +171,10 @@ export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ]);
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.totalBorrowFraction = lendingPair.totalBorrowFraction.minus(event.params.fraction);
+  lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.minus(event.params.share);
+  lendingPair.save()
 }
 
 export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
@@ -158,6 +182,9 @@ export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ]);
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.minus(event.params.share);
+  lendingPair.save()
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {
@@ -165,6 +192,9 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
     event.params.newOwner.toHex(),
     event.params.previousOwner.toHex()
   ]);
+  let lendingPair = LendingPair.load(event.address.toHex());
+  lendingPair.owner = event.params.newOwner;
+  lendingPair.save()
 }
 
 export function handleTransfer(event: Transfer): void {

@@ -51,10 +51,10 @@ export function handleLogDeploy(event: LogDeploy): void {
   if (LendingPair.load(event.params.clone_address.toHex())) {
     return;
   }
-
+  if(event.params.masterContract.toHex() == "0xdae20fa3487e3fe47de1e7ea973fc42b6cfe4737"){
   // Bind to contract for easy data access on creation
   const lendingPairContract = LendingPairContract.bind(event.params.clone_address)
-  
+
   const lendingPair = new LendingPair(event.params.clone_address.toHex())
 
   lendingPair.asset = lendingPairContract.asset()
@@ -62,7 +62,7 @@ export function handleLogDeploy(event: LogDeploy): void {
   lendingPair.borrowOpeningFee = lendingPairContract.borrowOpeningFee()
   lendingPair.closedCollaterizationRate = lendingPairContract.closedCollaterizationRate()
   lendingPair.collateral = lendingPairContract.collateral()
-  lendingPair.decimals = lendingPairContract.decimals() 
+  lendingPair.decimals = lendingPairContract.decimals()
   lendingPair.dev = lendingPairContract.dev()
   lendingPair.devFee = lendingPairContract.devFee()
   lendingPair.exchangeRate = lendingPairContract.exchangeRate()
@@ -96,6 +96,8 @@ export function handleLogDeploy(event: LogDeploy): void {
   lendingPair.save()
 
   LendingPairTemplate.create(event.params.clone_address)
+
+  }
 
   // // Entities can be loaded from the store using a string ID; this ID
   // // needs to be unique across all entities of the same type
