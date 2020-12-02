@@ -12,6 +12,8 @@ import {
   Transfer
 } from "../../generated/templates/LendingPair/LendingPair"
 import { LendingPair } from "../../generated/schema";
+import { getUser } from './helpers/getUser'
+import { getUserLendingPairData } from './helpers/getUserLendingPairData'
 
 import { log } from '@graphprotocol/graph-ts'
 
@@ -21,92 +23,6 @@ export function handleApproval(event: Approval): void {
     event.params._spender.toHex(),
     event.params._value.toString(),
   ]);
-
-  // // Entities can be loaded from the store using a string ID; this ID
-  // // needs to be unique across all entities of the same type
-  // let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // // Entities only exist after they have been saved to the store;
-  // // `null` checks allow to create entities on demand
-  // if (entity == null) {
-  //   entity = new ExampleEntity(event.transaction.from.toHex())
-
-  //   // Entity fields can be set using simple assignments
-  //   entity.count = BigInt.fromI32(0)
-  // }
-
-  // // BigInt and BigDecimal math are supported
-  // entity.count = entity.count + BigInt.fromI32(1)
-
-  // // Entity fields can be set based on event parameters
-  // entity._owner = event.params._owner
-  // entity._spender = event.params._spender
-
-  // // Entities can be written to the store with `.save()`
-  // entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.DOMAIN_SEPARATOR(...)
-  // - contract.approve(...)
-  // - contract.asset(...)
-  // - contract.balanceOf(...)
-  // - contract.bentoBox(...)
-  // - contract.borrowOpeningFee(...)
-  // - contract.closedCollaterizationRate(...)
-  // - contract.collateral(...)
-  // - contract.decimals(...)
-  // - contract.dev(...)
-  // - contract.devFee(...)
-  // - contract.exchangeRate(...)
-  // - contract.feeTo(...)
-  // - contract.feesPendingShare(...)
-  // - contract.getInitData(...)
-  // - contract.interestElasticity(...)
-  // - contract.interestPerBlock(...)
-  // - contract.isSolvent(...)
-  // - contract.lastBlockAccrued(...)
-  // - contract.liquidationMultiplier(...)
-  // - contract.masterContract(...)
-  // - contract.maximumInterestPerBlock(...)
-  // - contract.maximumTargetUtilization(...)
-  // - contract.minimumInterestPerBlock(...)
-  // - contract.minimumTargetUtilization(...)
-  // - contract.name(...)
-  // - contract.nonces(...)
-  // - contract.openCollaterizationRate(...)
-  // - contract.oracle(...)
-  // - contract.oracleData(...)
-  // - contract.owner(...)
-  // - contract.peekExchangeRate(...)
-  // - contract.pendingOwner(...)
-  // - contract.protocolFee(...)
-  // - contract.startingInterestPerBlock(...)
-  // - contract.swappers(...)
-  // - contract.symbol(...)
-  // - contract.totalAssetShare(...)
-  // - contract.totalBorrowFraction(...)
-  // - contract.totalBorrowShare(...)
-  // - contract.totalCollateralShare(...)
-  // - contract.totalSupply(...)
-  // - contract.transfer(...)
-  // - contract.transferFrom(...)
-  // - contract.updateExchangeRate(...)
-  // - contract.userBorrowFraction(...)
-  // - contract.userCollateralShare(...)
 }
 
 export function handleLogAddAsset(event: LogAddAsset): void {
@@ -120,6 +36,11 @@ export function handleLogAddAsset(event: LogAddAsset): void {
   lendingPair.totalSupply = lendingPair.totalSupply.plus(event.params.fraction);
   lendingPair.totalAssetShare = lendingPair.totalAssetShare.plus(event.params.share);
   lendingPair.save();
+
+  let user = getUser(event.params.user);
+  let userData = getUserLendingPairData(event.params.user, event.address);
+  userData.balanceOf = userData.balanceOf.plus(event.params.fraction);
+  userData.save();
 }
 
 export function handleLogAddBorrow(event: LogAddBorrow): void {
@@ -142,6 +63,11 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
   let lendingPair = LendingPair.load(event.address.toHex());
   lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.plus(event.params.share);
   lendingPair.save()
+
+  let user = getUser(event.params.user);
+  let userData = getUserLendingPairData(event.params.user, event.address);
+  userData.userCollateralShare = userData.userCollateralShare.plus(event.params.share);
+  userData.save();
 }
 
 export function handleLogExchangeRate(event: LogExchangeRate): void {
@@ -163,6 +89,10 @@ export function handleLogRemoveAsset(event: LogRemoveAsset): void {
   lendingPair.totalSupply = lendingPair.totalSupply.minus(event.params.fraction);
   lendingPair.totalAssetShare = lendingPair.totalAssetShare.minus(event.params.share);
   lendingPair.save()
+
+  let user = getUserLendingPairData(event.params.user, event.address);
+  user.balanceOf = user.balanceOf.minus(event.params.fraction);
+  user.save();
 }
 
 export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
@@ -175,6 +105,10 @@ export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
   lendingPair.totalBorrowFraction = lendingPair.totalBorrowFraction.minus(event.params.fraction);
   lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.minus(event.params.share);
   lendingPair.save()
+
+  let user = getUserLendingPairData(event.params.user, event.address);
+  user.userBorrowFraction = user.userBorrowFraction.minus(event.params.fraction);
+  user.save();
 }
 
 export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
@@ -185,6 +119,10 @@ export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
   let lendingPair = LendingPair.load(event.address.toHex());
   lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.minus(event.params.share);
   lendingPair.save()
+
+  let user = getUserLendingPairData(event.params.user, event.address);
+  user.userCollateralShare = user.userCollateralShare.minus(event.params.share);
+  user.save();
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {
@@ -203,4 +141,12 @@ export function handleTransfer(event: Transfer): void {
     event.params._to.toHex(),
     event.params._value.toString(),
   ]);
+  let sender = getUserLendingPairData(event.params._from, event.address);
+  sender.balanceOf = sender.balanceOf.minus(event.params._value);
+  sender.save();
+
+  let user = getUser(event.params._to);
+  let receiver = getUserLendingPairData(event.params._to, event.address);
+  receiver.balanceOf = receiver.balanceOf.plus(event.params._value);
+  receiver.save();
 }

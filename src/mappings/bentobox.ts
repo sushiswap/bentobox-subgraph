@@ -1,5 +1,5 @@
 import { Address, BigInt, ByteArray, dataSource, log } from "@graphprotocol/graph-ts";
-import { BentoBox, LendingPair, Token } from "../../generated/schema";
+import { BentoBox, LendingPair, Token, UserBentoTokenData, MasterContractApproval } from "../../generated/schema";
 import {
   BentoBox as BentoBoxContract,
   LogDeploy,
@@ -9,7 +9,9 @@ import {
   LogTransfer,
   LogWithdraw,
 } from "../../generated/BentoBox/BentoBox";
-
+import { getUserBentoTokenData } from './helpers/getUserBentoTokenData'
+import { getMasterContractApproval } from './helpers/getMasterContractApproval'
+import { getUser } from './helpers/getUser'
 import { ERC20 as ERC20Contract } from '../../generated/BentoBox/ERC20'
 import { LendingPair as LendingPairContract } from '../../generated/BentoBox/LendingPair'
 import { LendingPair as LendingPairTemplate } from '../../generated/templates'
@@ -99,68 +101,6 @@ export function handleLogDeploy(event: LogDeploy): void {
 
   }
 
-  // // Entities can be loaded from the store using a string ID; this ID
-  // // needs to be unique across all entities of the same type
-  // let entity = ExampleEntity.load(event.transaction.from.toHex());
-
-  // // Entities only exist after they have been saved to the store;
-  // // `null` checks allow to create entities on demand
-  // if (entity == null) {
-  //   entity = new ExampleEntity(event.transaction.from.toHex());
-
-  //   // Entity fields can be set using simple assignments
-  //   entity.count = BigInt.fromI32(0);
-  // }
-
-  // // BigInt and BigDecimal math are supported
-  // entity.count = entity.count + BigInt.fromI32(1);
-
-  // // Entity fields can be set based on event parameters
-  // entity.masterContract = event.params.masterContract;
-  // entity.data = event.params.data;
-
-  // // Entities can be written to the store with `.save()`
-  // entity.save();
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.WETH(...)
-  // - contract.masterContractApproved(...)
-  // - contract.masterContractOf(...)
-  // - contract.shareOf(...)
-  // - contract.totalAmount(...)
-  // - contract.totalShare(...)
-  // - contract.toAmount(...)
-  // - contract.toShare(...)
-  // - contract.withdraw(...)
-  // - contract.withdrawFrom(...)
-  // - contract.withdrawShare(...)
-  // - contract.withdrawShareFrom(...)
-  // - contract.transfer(...)
-  // - contract.transferFrom(...)
-  // - contract.transferMultiple(...)
-  // - contract.transferMultipleFrom(...)
-  // - contract.transferShare(...)
-  // - contract.transferShareFrom(...)
-  // - contract.transferMultipleShare(...)
-  // - contract.transferMultipleShareFrom(...)
-  // - contract.skim(...)
-  // - contract.skimTo(...)
-  // - contract.skimETH(...)
-  // - contract.skimETHTo(...)
 }
 
 export function handleLogDeposit(event: LogDeposit): void {
@@ -184,6 +124,11 @@ export function handleLogDeposit(event: LogDeposit): void {
   token.totalAmount = token.totalAmount.plus(event.params.amount);
   token.totalShare = token.totalShare.plus(event.params.share);
   token.save();
+  let user = getUser(event.params.to);
+  let userTokenData = getUserBentoTokenData(event.params.to, event.params.token);
+  userTokenData.share = userTokenData.share.plus(event.params.share);
+  userTokenData.save();
+
 }
 
 export function handleLogFlashLoan(event: LogFlashLoan): void {
@@ -206,6 +151,10 @@ export function handleLogSetMasterContractApproval(
     event.params.masterContract.toHex(),
     event.params.user.toHex(),
   ]);
+  let user = getUser(event.params.user);
+  let masterContractApproval = getMasterContractApproval(event.params.user, event.params.masterContract);
+  masterContractApproval.approved = event.params.approved;
+  masterContractApproval.save();
 }
 
 export function handleLogTransfer(event: LogTransfer): void {
@@ -216,6 +165,15 @@ export function handleLogTransfer(event: LogTransfer): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ]);
+
+  let sender = getUserBentoTokenData(event.params.from, event.params.token);
+  sender.share = sender.share.minus(event.params.share);
+  sender.save();
+
+  let receiverUser = getUser(event.params.to);
+  let receiver = getUserBentoTokenData(event.params.to, event.params.token);
+  receiver.share = receiver.share.plus(event.params.share);
+  receiver.save();
 }
 
 export function handleLogWithdraw(event: LogWithdraw): void {
@@ -230,4 +188,8 @@ export function handleLogWithdraw(event: LogWithdraw): void {
   token.totalAmount = token.totalAmount.minus(event.params.amount);
   token.totalShare = token.totalShare.minus(event.params.share);
   token.save();
+
+  let sender = getUserBentoTokenData(event.params.from, event.params.token);
+  sender.share = sender.share.minus(event.params.share);
+  sender.save();
 }
