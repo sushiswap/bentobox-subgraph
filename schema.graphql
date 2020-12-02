@@ -14,6 +14,38 @@ type Token @entity {
   totalAmount: BigInt!
 }
 
+type User @entity {
+  # concatenate UserAddress with BentoBoxAddress
+  id: ID!
+  lendingPairs: [UserLendingPairData!] @derivedFrom(field: "owner")
+  bentoData: [UserBentoTokenData!] @derivedFrom(field: "owner")
+  masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "owner")
+}
+
+type UserBentoTokenData @entity {
+  # concatenate UserAddress with TokenAddress
+  id: ID!
+  owner: User!
+  share: BigInt!
+}
+
+type MasterContractApproval @entity {
+  # concatenate UserAddress with MasterContract
+  id: ID!
+  owner: User!
+  approved: Boolean!
+}
+
+type UserLendingPairData @entity {
+  # concatenate UserAddress with LendingPairAddress
+  id: ID!
+  lendingPair: LendingPair!
+  owner: User!
+  userCollateralShare: BigInt!
+  balanceOf: BigInt!
+  userBorrowFraction: BigInt!
+}
+
 type LendingPair @entity {
   id: ID!
   asset: Bytes!
