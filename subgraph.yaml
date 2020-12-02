@@ -7,9 +7,9 @@ dataSources:
     name: BentoBox
     network: 'ropsten'
     source:
-      address: '0xeB164C98C804d09F2b45C27e6c70528B46e2e0B7'
+      address: '0x42192Cc25e0feb6debbd5fB32180Ee706c80F322'
       abi: BentoBox
-      startBlock: 9170465
+      startBlock: 9175963
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

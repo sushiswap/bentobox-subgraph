@@ -1,5 +1,5 @@
 import { Address, BigInt, ByteArray, dataSource, log } from "@graphprotocol/graph-ts";
-import { BentoBox, LendingPair } from "../../generated/schema";
+import { BentoBox, LendingPair, Token } from "../../generated/schema";
 import {
   BentoBox as BentoBoxContract,
   LogDeploy,
@@ -51,10 +51,10 @@ export function handleLogDeploy(event: LogDeploy): void {
   if (LendingPair.load(event.params.clone_address.toHex())) {
     return;
   }
-
+  if(event.params.masterContract.toHex() == "0xdae20fa3487e3fe47de1e7ea973fc42b6cfe4737"){
   // Bind to contract for easy data access on creation
   const lendingPairContract = LendingPairContract.bind(event.params.clone_address)
-  
+
   const lendingPair = new LendingPair(event.params.clone_address.toHex())
 
   lendingPair.asset = lendingPairContract.asset()
@@ -62,7 +62,7 @@ export function handleLogDeploy(event: LogDeploy): void {
   lendingPair.borrowOpeningFee = lendingPairContract.borrowOpeningFee()
   lendingPair.closedCollaterizationRate = lendingPairContract.closedCollaterizationRate()
   lendingPair.collateral = lendingPairContract.collateral()
-  lendingPair.decimals = lendingPairContract.decimals() 
+  lendingPair.decimals = lendingPairContract.decimals()
   lendingPair.dev = lendingPairContract.dev()
   lendingPair.devFee = lendingPairContract.devFee()
   lendingPair.exchangeRate = lendingPairContract.exchangeRate()
@@ -96,6 +96,8 @@ export function handleLogDeploy(event: LogDeploy): void {
   lendingPair.save()
 
   LendingPairTemplate.create(event.params.clone_address)
+
+  }
 
   // // Entities can be loaded from the store using a string ID; this ID
   // // needs to be unique across all entities of the same type
@@ -169,6 +171,19 @@ export function handleLogDeposit(event: LogDeposit): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ]);
+  let bentoAddress = event.address.toHex();
+  let token = Token.load(event.params.token.toHex());
+
+  if (token == null) {
+    token = new Token(event.params.token.toHex());
+    token.bentoBox = bentoAddress;
+    token.totalShare = BigInt.fromI32(0);
+    token.totalAmount = BigInt.fromI32(0);
+  }
+
+  token.totalAmount = token.totalAmount.plus(event.params.amount);
+  token.totalShare = token.totalShare.plus(event.params.share);
+  token.save();
 }
 
 export function handleLogFlashLoan(event: LogFlashLoan): void {
@@ -178,6 +193,9 @@ export function handleLogFlashLoan(event: LogFlashLoan): void {
     event.params.token.toHex(),
     event.params.user.toHex(),
   ]);
+  let token = Token.load(event.params.token.toHex());
+  token.totalAmount = token.totalAmount.plus(event.params.feeAmount);
+  token.save();
 }
 
 export function handleLogSetMasterContractApproval(
@@ -208,4 +226,8 @@ export function handleLogWithdraw(event: LogWithdraw): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ]);
+  let token = Token.load(event.params.token.toHex());
+  token.totalAmount = token.totalAmount.minus(event.params.amount);
+  token.totalShare = token.totalShare.minus(event.params.share);
+  token.save();
 }
