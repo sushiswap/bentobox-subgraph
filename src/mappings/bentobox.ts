@@ -1,4 +1,4 @@
-import { BIG_INT_ONE, BIG_INT_ZERO } from "./helpers/constants";
+import { BIG_INT_ONE, MEDIUM_RISK_LENDING_PAIR_MASTER } from "./helpers/constants";
 import { BentoBox, LendingPair, Token } from "../../generated/schema";
 import {
   BentoBox as BentoBoxContract,
@@ -42,7 +42,7 @@ export function handleLogDeploy(event: LogDeploy): void {
     return;
   }
   
-  if (event.params.masterContract.toHex() == "0xdae20fa3487e3fe47de1e7ea973fc42b6cfe4737") {
+  if (event.params.masterContract == MEDIUM_RISK_LENDING_PAIR_MASTER) {
     
     // Bind to contract for easy data access on creation
     const lendingPairContract = LendingPairContract.bind(event.params.clone_address)
@@ -88,7 +88,6 @@ export function handleLogDeploy(event: LogDeploy): void {
     lendingPair.save()
 
     LendingPairTemplate.create(event.params.clone_address)
-
   }
 
 }
