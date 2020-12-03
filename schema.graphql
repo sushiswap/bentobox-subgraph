@@ -5,6 +5,7 @@ type BentoBox @entity {
   lendingPairs: [LendingPair!]! @derivedFrom(field: "bentoBox")
   tokens: [Token!] @derivedFrom(field: "bentoBox")
   WETH: Bytes!
+  lendingPairsCount: BigInt!
 }
 
 type Token @entity {
@@ -12,6 +13,8 @@ type Token @entity {
   bentoBox: BentoBox!
   totalShare: BigInt!
   totalAmount: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
 }
 
 type User @entity {
@@ -20,12 +23,15 @@ type User @entity {
   lendingPairs: [UserLendingPairData!] @derivedFrom(field: "owner")
   bentoData: [UserBentoTokenData!] @derivedFrom(field: "owner")
   masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "owner")
+  block: BigInt!
+  timestamp: BigInt!
 }
 
 type UserBentoTokenData @entity {
   # concatenate UserAddress with TokenAddress
   id: ID!
   owner: User!
+  token: Token!
   share: BigInt!
 }
 
@@ -76,18 +82,12 @@ type LendingPair @entity {
   protocolFee: BigInt!
   startingInterestPerBlock: BigInt!
   symbol: String!
-  totalAssetShare: BigInt
-  totalBorrowFraction: BigInt
-  totalBorrowShare: BigInt
-  totalCollateralShare: BigInt
-  totalSupply: BigInt
+  totalAssetShare: BigInt!
+  totalBorrowFraction: BigInt!
+  totalBorrowShare: BigInt!
+  totalCollateralShare: BigInt!
+  totalSupply: BigInt!
+  utilization: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }
-
-# type ExampleEntity @entity {
-#   id: ID!
-#   count: BigInt!
-#   masterContract: Bytes! # address
-#   data: Bytes! # bytes
-# }

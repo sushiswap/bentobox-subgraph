@@ -1,7 +1,4 @@
-import {
-  BIG_INT_ZERO,
-} from './constants'
-import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { Address } from '@graphprotocol/graph-ts'
 import { MasterContractApproval } from '../../../generated/schema'
 
 export function getMasterContractApproval(user: Address, masterContract: Address): MasterContractApproval {

@@ -1,7 +1,5 @@
-import {
-  BIG_INT_ZERO,
-} from './constants'
-import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { Address } from '@graphprotocol/graph-ts'
+import { BIG_INT_ZERO } from './constants'
 import { UserBentoTokenData } from '../../../generated/schema'
 
 export function getUserBentoTokenData(user: Address, token: Address): UserBentoTokenData {
@@ -14,6 +12,7 @@ export function getUserBentoTokenData(user: Address, token: Address): UserBentoT
   if (userBentoTokenData === null) {
     userBentoTokenData = new UserBentoTokenData(id)
     userBentoTokenData.owner = uid
+    userBentoTokenData.token = tid
     userBentoTokenData.share = BIG_INT_ZERO
     userBentoTokenData.save()
   }
