@@ -29,6 +29,7 @@ type UserBentoTokenData @entity {
   # concatenate UserAddress with TokenAddress
   id: ID!
   owner: User!
+  token: Token!
   share: BigInt!
 }
 
