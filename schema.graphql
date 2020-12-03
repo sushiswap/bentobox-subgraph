@@ -13,6 +13,8 @@ type Token @entity {
   bentoBox: BentoBox!
   totalShare: BigInt!
   totalAmount: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
 }
 
 type User @entity {

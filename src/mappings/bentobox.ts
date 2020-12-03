@@ -108,6 +108,8 @@ export function handleLogDeposit(event: LogDeposit): void {
     token.bentoBox = bentoAddress
     token.totalShare = BigInt.fromI32(0)
     token.totalAmount = BigInt.fromI32(0)
+    token.block = event.block.number
+    token.timestamp = event.block.timestamp
   }
 
   token.totalAmount = token.totalAmount.plus(event.params.amount)
