@@ -114,7 +114,7 @@ export function handleLogDeposit(event: LogDeposit): void {
   token.totalShare = token.totalShare.plus(event.params.share)
   token.save()
 
-  const user = getUser(event.params.to)
+  const user = getUser(event.params.to, event.block)
   const userTokenData = getUserBentoTokenData(event.params.to, event.params.token)
   userTokenData.share = userTokenData.share.plus(event.params.share)
   userTokenData.save()
@@ -138,7 +138,7 @@ export function handleLogSetMasterContractApproval(event: LogSetMasterContractAp
     event.params.masterContract.toHex(),
     event.params.user.toHex(),
   ])
-  const user = getUser(event.params.user)
+  const user = getUser(event.params.user, event.block)
   const masterContractApproval = getMasterContractApproval(event.params.user, event.params.masterContract)
   masterContractApproval.approved = event.params.approved
   masterContractApproval.save()
@@ -157,7 +157,7 @@ export function handleLogTransfer(event: LogTransfer): void {
   sender.share = sender.share.minus(event.params.share)
   sender.save()
 
-  const receiverUser = getUser(event.params.to)
+  const receiverUser = getUser(event.params.to, event.block)
   const receiver = getUserBentoTokenData(event.params.to, event.params.token)
   receiver.share = receiver.share.plus(event.params.share)
   receiver.save()

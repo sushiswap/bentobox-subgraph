@@ -37,7 +37,7 @@ export function handleLogAddAsset(event: LogAddAsset): void {
   lendingPair.totalAssetShare = lendingPair.totalAssetShare.plus(event.params.share)
   lendingPair.save()
 
-  const user = getUser(event.params.user)
+  const user = getUser(event.params.user, event.block)
   const userData = getUserLendingPairData(event.params.user, event.address)
   userData.balanceOf = userData.balanceOf.plus(event.params.fraction)
   userData.save()
@@ -64,7 +64,7 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
   lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.plus(event.params.share)
   lendingPair.save()
 
-  const user = getUser(event.params.user)
+  const user = getUser(event.params.user, event.block)
   const userData = getUserLendingPairData(event.params.user, event.address)
   userData.userCollateralShare = userData.userCollateralShare.plus(event.params.share)
   userData.save()
@@ -143,7 +143,7 @@ export function handleTransfer(event: Transfer): void {
   sender.balanceOf = sender.balanceOf.minus(event.params._value)
   sender.save()
 
-  const user = getUser(event.params._to)
+  const user = getUser(event.params._to, event.block)
   const receiver = getUserLendingPairData(event.params._to, event.address)
   receiver.balanceOf = receiver.balanceOf.plus(event.params._value)
   receiver.save()

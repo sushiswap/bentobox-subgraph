@@ -21,6 +21,8 @@ type User @entity {
   lendingPairs: [UserLendingPairData!] @derivedFrom(field: "owner")
   bentoData: [UserBentoTokenData!] @derivedFrom(field: "owner")
   masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "owner")
+  block: BigInt!
+  timestamp: BigInt!
 }
 
 type UserBentoTokenData @entity {
@@ -85,10 +87,3 @@ type LendingPair @entity {
   block: BigInt!
   timestamp: BigInt!
 }
-
-# type ExampleEntity @entity {
-#   id: ID!
-#   count: BigInt!
-#   masterContract: Bytes! # address
-#   data: Bytes! # bytes
-# }
