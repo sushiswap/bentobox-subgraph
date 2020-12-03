@@ -31,6 +31,7 @@ export function handleLogDeploy(event: LogDeploy): void {
     const bentoBoxContract = BentoBoxContract.bind(dataSource.address())
     bentoBox = new BentoBox(dataSource.address().toHex());
     bentoBox.WETH = bentoBoxContract.WETH()
+    bentoBox.lendingPairsCount = BigInt.fromI32(0)
   }
 
   bentoBox.lendingPairsCount = bentoBox.lendingPairsCount.plus(BIG_INT_ONE)
@@ -175,6 +176,7 @@ export function handleLogWithdraw(event: LogWithdraw): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ]);
+  
   let token = Token.load(event.params.token.toHex());
   token.totalAmount = token.totalAmount.minus(event.params.amount);
   token.totalShare = token.totalShare.minus(event.params.share);
