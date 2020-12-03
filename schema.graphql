@@ -5,6 +5,7 @@ type BentoBox @entity {
   lendingPairs: [LendingPair!]! @derivedFrom(field: "bentoBox")
   tokens: [Token!] @derivedFrom(field: "bentoBox")
   WETH: Bytes!
+  lendingPairsCount: BigInt!
 }
 
 type Token @entity {

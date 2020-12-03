@@ -1,3 +1,4 @@
+import { BIG_INT_ONE, BIG_INT_ZERO } from "./helpers/constants";
 import { BentoBox, LendingPair, Token } from "../../generated/schema";
 import {
   BentoBox as BentoBoxContract,
@@ -23,9 +24,7 @@ export function handleLogDeploy(event: LogDeploy): void {
     event.params.data.toHex(),
     event.params.masterContract.toHex(),
   ]);
-
-  const data = event.params.data.toHex()
-
+  
   let bentoBox = BentoBox.load(dataSource.address().toHex());
 
   if (bentoBox == null) {
@@ -33,6 +32,8 @@ export function handleLogDeploy(event: LogDeploy): void {
     bentoBox = new BentoBox(dataSource.address().toHex());
     bentoBox.WETH = bentoBoxContract.WETH()
   }
+
+  bentoBox.lendingPairsCount = bentoBox.lendingPairsCount.plus(BIG_INT_ONE)
 
   bentoBox.save();
 
