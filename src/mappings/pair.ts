@@ -154,6 +154,9 @@ export function handleLogInterestRate(event: LogInterestRate): void {
   log.info('[BentoBox:LendingPair] Log Interest Rate {}', [event.params.rate.toString()])
   const lendingPair = LendingPair.load(event.address.toHex())
   lendingPair.interestPerBlock = event.params.rate
-  lendingPair.utilization = event.params.utilization
+  // I assume this will change soon based on discussions
+  if (event.params.utilization) {
+    lendingPair.utilization = event.params.utilization
+  }
   lendingPair.save()
 }
