@@ -1,5 +1,4 @@
-import { Address, BigInt, ByteArray, dataSource, log } from "@graphprotocol/graph-ts";
-import { BentoBox, LendingPair, Token, UserBentoTokenData, MasterContractApproval } from "../../generated/schema";
+import { BentoBox, LendingPair, Token } from "../../generated/schema";
 import {
   BentoBox as BentoBoxContract,
   LogDeploy,
@@ -9,12 +8,13 @@ import {
   LogTransfer,
   LogWithdraw,
 } from "../../generated/BentoBox/BentoBox";
-import { getUserBentoTokenData } from './helpers/getUserBentoTokenData'
-import { getMasterContractApproval } from './helpers/getMasterContractApproval'
-import { getUser } from './helpers/getUser'
-import { ERC20 as ERC20Contract } from '../../generated/BentoBox/ERC20'
+import { BigInt, dataSource, log } from "@graphprotocol/graph-ts";
+
 import { LendingPair as LendingPairContract } from '../../generated/BentoBox/LendingPair'
 import { LendingPair as LendingPairTemplate } from '../../generated/templates'
+import { getMasterContractApproval } from './helpers/getMasterContractApproval'
+import { getUser } from './helpers/getUser'
+import { getUserBentoTokenData } from './helpers/getUserBentoTokenData'
 
 export function handleLogDeploy(event: LogDeploy): void {
 
@@ -25,19 +25,6 @@ export function handleLogDeploy(event: LogDeploy): void {
   ]);
 
   const data = event.params.data.toHex()
-
-  const collateral = data.substring(26, 66)
-
-  const asset = data.substring(90, 130)
-
-  const oracle = data.substring(154, 194)
-
-  log.info("[BentoBox] Deploy Data collateral: {} asset: {} oracle: {}", [
-    '0x' + collateral,
-    '0x' + asset,
-    '0x' + oracle
-  ]);
-
 
   let bentoBox = BentoBox.load(dataSource.address().toHex());
 
@@ -53,51 +40,53 @@ export function handleLogDeploy(event: LogDeploy): void {
   if (LendingPair.load(event.params.clone_address.toHex())) {
     return;
   }
-  if(event.params.masterContract.toHex() == "0xdae20fa3487e3fe47de1e7ea973fc42b6cfe4737"){
-  // Bind to contract for easy data access on creation
-  const lendingPairContract = LendingPairContract.bind(event.params.clone_address)
+  
+  if (event.params.masterContract.toHex() == "0xdae20fa3487e3fe47de1e7ea973fc42b6cfe4737") {
+    
+    // Bind to contract for easy data access on creation
+    const lendingPairContract = LendingPairContract.bind(event.params.clone_address)
 
-  const lendingPair = new LendingPair(event.params.clone_address.toHex())
+    const lendingPair = new LendingPair(event.params.clone_address.toHex())
 
-  lendingPair.asset = lendingPairContract.asset()
-  lendingPair.bentoBox = bentoBox.id
-  lendingPair.borrowOpeningFee = lendingPairContract.borrowOpeningFee()
-  lendingPair.closedCollaterizationRate = lendingPairContract.closedCollaterizationRate()
-  lendingPair.collateral = lendingPairContract.collateral()
-  lendingPair.decimals = lendingPairContract.decimals()
-  lendingPair.dev = lendingPairContract.dev()
-  lendingPair.devFee = lendingPairContract.devFee()
-  lendingPair.exchangeRate = lendingPairContract.exchangeRate()
-  lendingPair.feeTo = lendingPairContract.feeTo()
-  lendingPair.feesPendingShare = lendingPairContract.feesPendingShare()
-  lendingPair.interestElasticity = lendingPairContract.interestElasticity()
-  lendingPair.interestPerBlock = lendingPairContract.interestPerBlock()
-  lendingPair.lastBlockAccrued = lendingPairContract.lastBlockAccrued()
-  lendingPair.liquidationMultiplier = lendingPairContract.liquidationMultiplier()
-  lendingPair.masterContract = lendingPairContract.masterContract()
-  lendingPair.maximumInterestPerBlock = lendingPairContract.maximumInterestPerBlock()
-  lendingPair.maximumTargetUtilization = lendingPairContract.maximumTargetUtilization()
-  lendingPair.minimumInterestPerBlock = lendingPairContract.minimumInterestPerBlock()
-  lendingPair.minimumTargetUtilization = lendingPairContract.minimumTargetUtilization()
-  lendingPair.name = lendingPairContract.name()
-  lendingPair.openCollaterizationRate = lendingPairContract.openCollaterizationRate()
-  lendingPair.oracle = lendingPairContract.oracle()
-  lendingPair.owner = lendingPairContract.owner()
-  lendingPair.pendingOwner = lendingPairContract.pendingOwner()
-  lendingPair.protocolFee = lendingPairContract.protocolFee()
-  lendingPair.startingInterestPerBlock = lendingPairContract.startingInterestPerBlock()
-  lendingPair.symbol = lendingPairContract.symbol()
-  lendingPair.totalAssetShare = lendingPairContract.totalAssetShare()
-  lendingPair.totalBorrowFraction = lendingPairContract.totalBorrowFraction()
-  lendingPair.totalBorrowShare = lendingPairContract.totalBorrowShare()
-  lendingPair.totalCollateralShare = lendingPairContract.totalCollateralShare()
-  lendingPair.totalSupply = lendingPairContract.totalSupply()
-  lendingPair.block = event.block.number
-  lendingPair.timestamp = event.block.timestamp
+    lendingPair.asset = lendingPairContract.asset()
+    lendingPair.bentoBox = bentoBox.id
+    lendingPair.borrowOpeningFee = lendingPairContract.borrowOpeningFee()
+    lendingPair.closedCollaterizationRate = lendingPairContract.closedCollaterizationRate()
+    lendingPair.collateral = lendingPairContract.collateral()
+    lendingPair.decimals = lendingPairContract.decimals()
+    lendingPair.dev = lendingPairContract.dev()
+    lendingPair.devFee = lendingPairContract.devFee()
+    lendingPair.exchangeRate = lendingPairContract.exchangeRate()
+    lendingPair.feeTo = lendingPairContract.feeTo()
+    lendingPair.feesPendingShare = lendingPairContract.feesPendingShare()
+    lendingPair.interestElasticity = lendingPairContract.interestElasticity()
+    lendingPair.interestPerBlock = lendingPairContract.interestPerBlock()
+    lendingPair.lastBlockAccrued = lendingPairContract.lastBlockAccrued()
+    lendingPair.liquidationMultiplier = lendingPairContract.liquidationMultiplier()
+    lendingPair.masterContract = lendingPairContract.masterContract()
+    lendingPair.maximumInterestPerBlock = lendingPairContract.maximumInterestPerBlock()
+    lendingPair.maximumTargetUtilization = lendingPairContract.maximumTargetUtilization()
+    lendingPair.minimumInterestPerBlock = lendingPairContract.minimumInterestPerBlock()
+    lendingPair.minimumTargetUtilization = lendingPairContract.minimumTargetUtilization()
+    lendingPair.name = lendingPairContract.name()
+    lendingPair.openCollaterizationRate = lendingPairContract.openCollaterizationRate()
+    lendingPair.oracle = lendingPairContract.oracle()
+    lendingPair.owner = lendingPairContract.owner()
+    lendingPair.pendingOwner = lendingPairContract.pendingOwner()
+    lendingPair.protocolFee = lendingPairContract.protocolFee()
+    lendingPair.startingInterestPerBlock = lendingPairContract.startingInterestPerBlock()
+    lendingPair.symbol = lendingPairContract.symbol()
+    lendingPair.totalAssetShare = lendingPairContract.totalAssetShare()
+    lendingPair.totalBorrowFraction = lendingPairContract.totalBorrowFraction()
+    lendingPair.totalBorrowShare = lendingPairContract.totalBorrowShare()
+    lendingPair.totalCollateralShare = lendingPairContract.totalCollateralShare()
+    lendingPair.totalSupply = lendingPairContract.totalSupply()
+    lendingPair.block = event.block.number
+    lendingPair.timestamp = event.block.timestamp
 
-  lendingPair.save()
+    lendingPair.save()
 
-  LendingPairTemplate.create(event.params.clone_address)
+    LendingPairTemplate.create(event.params.clone_address)
 
   }
 
@@ -111,7 +100,9 @@ export function handleLogDeposit(event: LogDeposit): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ]);
+
   let bentoAddress = event.address.toHex();
+  
   let token = Token.load(event.params.token.toHex());
 
   if (token == null) {

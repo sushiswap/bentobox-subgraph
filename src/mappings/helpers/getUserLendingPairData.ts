@@ -1,7 +1,7 @@
+import { Address } from '@graphprotocol/graph-ts'
 import {
   BIG_INT_ZERO,
 } from './constants'
-import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { UserLendingPairData } from '../../../generated/schema'
 
 export function getUserLendingPairData(user: Address, pair: Address): UserLendingPairData {

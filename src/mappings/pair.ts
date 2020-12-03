@@ -11,10 +11,10 @@ import {
   OwnershipTransferred,
   Transfer
 } from "../../generated/templates/LendingPair/LendingPair"
+
 import { LendingPair } from "../../generated/schema";
 import { getUser } from './helpers/getUser'
 import { getUserLendingPairData } from './helpers/getUserLendingPairData'
-
 import { log } from '@graphprotocol/graph-ts'
 
 export function handleApproval(event: Approval): void {
