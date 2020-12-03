@@ -9,7 +9,7 @@ import {
   LogTransfer,
   LogWithdraw,
 } from '../../generated/BentoBox/BentoBox'
-import { BigInt, dataSource, log } from '@graphprotocol/graph-ts'
+import { dataSource, log } from '@graphprotocol/graph-ts'
 
 import { LendingPair as LendingPairContract } from '../../generated/BentoBox/LendingPair'
 import { LendingPair as LendingPairTemplate } from '../../generated/templates'
@@ -30,7 +30,7 @@ export function handleLogDeploy(event: LogDeploy): void {
     const bentoBoxContract = BentoBoxContract.bind(dataSource.address())
     bentoBox = new BentoBox(dataSource.address().toHex())
     bentoBox.WETH = bentoBoxContract.WETH()
-    bentoBox.lendingPairsCount = BigInt.fromI32(0)
+    bentoBox.lendingPairsCount = BIG_INT_ZERO
   }
 
   bentoBox.lendingPairsCount = bentoBox.lendingPairsCount.plus(BIG_INT_ONE)
@@ -106,8 +106,8 @@ export function handleLogDeposit(event: LogDeposit): void {
   if (token == null) {
     token = new Token(event.params.token.toHex())
     token.bentoBox = bentoAddress
-    token.totalShare = BigInt.fromI32(0)
-    token.totalAmount = BigInt.fromI32(0)
+    token.totalShare = BIG_INT_ZERO
+    token.totalAmount = BIG_INT_ZERO
     token.block = event.block.number
     token.timestamp = event.block.timestamp
   }
