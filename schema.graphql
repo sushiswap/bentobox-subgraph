@@ -79,11 +79,11 @@ type LendingPair @entity {
   protocolFee: BigInt!
   startingInterestPerBlock: BigInt!
   symbol: String!
-  totalAssetShare: BigInt
-  totalBorrowFraction: BigInt
-  totalBorrowShare: BigInt
-  totalCollateralShare: BigInt
-  totalSupply: BigInt
+  totalAssetShare: BigInt!
+  totalBorrowFraction: BigInt!
+  totalBorrowShare: BigInt!
+  totalCollateralShare: BigInt!
+  totalSupply: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }

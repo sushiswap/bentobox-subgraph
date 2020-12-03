@@ -1,4 +1,4 @@
-import { BIG_INT_ONE, MEDIUM_RISK_LENDING_PAIR_MASTER } from './helpers/constants'
+import { BIG_INT_ONE, BIG_INT_ZERO, MEDIUM_RISK_LENDING_PAIR_MASTER } from './helpers/constants'
 import { BentoBox, LendingPair, Token } from '../../generated/schema'
 import {
   BentoBox as BentoBoxContract,
@@ -76,11 +76,11 @@ export function handleLogDeploy(event: LogDeploy): void {
     lendingPair.protocolFee = lendingPairContract.protocolFee()
     lendingPair.startingInterestPerBlock = lendingPairContract.startingInterestPerBlock()
     lendingPair.symbol = lendingPairContract.symbol()
-    lendingPair.totalAssetShare = lendingPairContract.totalAssetShare()
-    lendingPair.totalBorrowFraction = lendingPairContract.totalBorrowFraction()
-    lendingPair.totalBorrowShare = lendingPairContract.totalBorrowShare()
-    lendingPair.totalCollateralShare = lendingPairContract.totalCollateralShare()
-    lendingPair.totalSupply = lendingPairContract.totalSupply()
+    lendingPair.totalAssetShare = BIG_INT_ZERO
+    lendingPair.totalBorrowFraction = BIG_INT_ZERO
+    lendingPair.totalBorrowShare = BIG_INT_ZERO
+    lendingPair.totalCollateralShare = BIG_INT_ZERO
+    lendingPair.totalSupply = BIG_INT_ZERO
     lendingPair.block = event.block.number
     lendingPair.timestamp = event.block.timestamp
 
