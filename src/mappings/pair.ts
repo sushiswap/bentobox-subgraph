@@ -5,6 +5,7 @@ import {
   LogAddBorrow,
   LogAddCollateral,
   LogExchangeRate,
+  LogInterestRate,
   LogRemoveAsset,
   LogRemoveBorrow,
   LogRemoveCollateral,
@@ -147,4 +148,12 @@ export function handleTransfer(event: Transfer): void {
   const receiver = getUserLendingPairData(event.params._to, event.address)
   receiver.balanceOf = receiver.balanceOf.plus(event.params._value)
   receiver.save()
+}
+
+export function handleLogInterestRate(event: LogInterestRate): void {
+  log.info('[BentoBox:LendingPair] Log Interest Rate {}', [event.params.rate.toString()])
+  const lendingPair = LendingPair.load(event.address.toHex())
+  lendingPair.interestPerBlock = event.params.rate
+  lendingPair.utilization = event.params.utilization
+  lendingPair.save()
 }

@@ -87,6 +87,7 @@ type LendingPair @entity {
   totalBorrowShare: BigInt!
   totalCollateralShare: BigInt!
   totalSupply: BigInt!
+  utilization: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }

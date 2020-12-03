@@ -42,45 +42,6 @@ dataSources:
         - event: LogWithdraw(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleLogWithdraw
       file: ./src/mappings/bentobox.ts
-
-  # SushiSwap Swapper
-  # - kind: ethereum/contract
-  #   name: SushiSwapSwapper
-  #   network: ropsten
-  #   source:
-  #     address: "0x451BB5F4dd2C4933CccdB15444aF2aEA2A084f89"
-  #     abi: SushiSwapSwapper
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-
-  #     abis:
-  #       - name: SushiSwapSwapper
-  #         file: ./abis/SushiSwapSwapper.json
-  #     eventHandlers:
-
-  #     file: ./src/mapping.ts
-
-  # Pegged Oracle
-  # - kind: ethereum/contract
-  #   name: PeggedOracle
-  #   network: ropsten
-  #   source:
-  #     address: "0xb5C8A2d1C8d393Dace7b3C1D98f35d645A1cD1fc"
-  #     abi: PeggedOracle
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - PeggedOracle
-  #     abis:
-  #       - name: PeggedOracle
-  #         file: ./abis/PeggedOracle.json
-  #     eventHandlers:
-  #     file: ./src/mappings/pegged-oracle.ts
       
 templates:
   - kind: ethereum/contract
@@ -117,6 +78,8 @@ templates:
           handler: handleLogAddCollateral
         - event: LogExchangeRate(uint256)
           handler: handleLogExchangeRate
+        - event: LogInterestRate(uint256,uint256)
+          handler: handleLogInterestRate
         - event: LogRemoveAsset(indexed address,uint256,uint256)
           handler: handleLogRemoveAsset
         - event: LogRemoveBorrow(indexed address,uint256,uint256)
