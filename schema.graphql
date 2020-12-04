@@ -22,6 +22,7 @@ type FlashLoan @entity {
   timestamp: BigInt!
 }
 
+
 type Deposit @entity {
   id: ID!
   bentoBox: BentoBox!
@@ -33,6 +34,8 @@ type Deposit @entity {
   block: BigInt!
   timestamp: BigInt!
 }
+
+
 
 type Withdrawal @entity {
   id: ID!
@@ -82,39 +85,21 @@ type MasterContractApproval @entity {
   approved: Boolean!
 }
 
-type AssetTx @entity {
-    id: ID!
-    lendingPair: LendingPair!
-    token: Token!
-    root: UserLendingPairData!
-    amount: BigInt!
-    share: BigInt!
-    fraction: BigInt!
-    poolPercentage: BigInt!
-    block: BigInt!
-    timestamp: BigInt!
+enum PairTransactionType {
+  assetTx
+  collateralTx
+  borrowTx
 }
 
-type CollateralTx @entity {
+type PairTx @entity {
     id: ID!
+    type: PairTransactionType!
     lendingPair: LendingPair!
     token: Token!
     root: UserLendingPairData!
     amount: BigInt!
     share: BigInt!
-    poolPercentage: BigInt!
-    block: BigInt!
-    timestamp: BigInt!
-}
-
-type BorrowTx @entity {
-    id: ID!
-    lendingPair: LendingPair!
-    token: Token!
-    root: UserLendingPairData!
-    amount: BigInt!
-    share: BigInt!
-    fraction: BigInt!
+    fraction: BigInt
     poolPercentage: BigInt!
     block: BigInt!
     timestamp: BigInt!
@@ -128,9 +113,7 @@ type UserLendingPairData @entity {
   userCollateralShare: BigInt!
   balanceOf: BigInt!
   userBorrowFraction: BigInt!
-  assetTxs: [AssetTx!] @derivedFrom(field: "root")
-  collateralTxs: [CollateralTx!] @derivedFrom(field: "root")
-  borrowTxs: [BorrowTx!] @derivedFrom(field: "root")
+  transactions: [PairTx!] @derivedFrom(field: "root")
 }
 
 type LendingPair @entity {
@@ -171,7 +154,5 @@ type LendingPair @entity {
   utilization: BigInt!
   block: BigInt!
   timestamp: BigInt!
-  assetTxs: [AssetTx!] @derivedFrom(field: "lendingPair")
-  collateralTxs: [CollateralTx!] @derivedFrom(field: "lendingPair")
-  borrowTxs: [BorrowTx!] @derivedFrom(field: "lendingPair")
+  transactions: [PairTx!] @derivedFrom(field: "lendingPair")
 }
