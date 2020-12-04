@@ -5,7 +5,45 @@ type BentoBox @entity {
   lendingPairs: [LendingPair!]! @derivedFrom(field: "bentoBox")
   tokens: [Token!] @derivedFrom(field: "bentoBox")
   WETH: Bytes!
+  withdrawals: [Withdrawal!] @derivedFrom(field: "bentoBox")
+  deposits: [Deposit!] @derivedFrom(field: "bentoBox")
+  flashloans: [FlashLoan!] @derivedFrom(field: "bentoBox")
   lendingPairsCount: BigInt!
+}
+
+type FlashLoan @entity {
+  id: ID!
+  bentoBox: BentoBox!
+  user: User!
+  token: Token!
+  amount: BigInt!
+  feeAmount: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+type Deposit @entity {
+  id: ID!
+  bentoBox: BentoBox!
+  from: User!
+  to: User!
+  token: Token!
+  amount: BigInt!
+  share: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+type Withdrawal @entity {
+  id: ID!
+  bentoBox: BentoBox!
+  from: User!
+  to: Bytes!
+  token: Token!
+  amount: BigInt!
+  share: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
 }
 
 type Token @entity {
@@ -18,11 +56,13 @@ type Token @entity {
 }
 
 type User @entity {
-  # concatenate UserAddress with BentoBoxAddress
   id: ID!
   lendingPairs: [UserLendingPairData!] @derivedFrom(field: "owner")
   bentoData: [UserBentoTokenData!] @derivedFrom(field: "owner")
   masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "owner")
+  withdrawals: [Withdrawal!] @derivedFrom(field: "from")
+  deposits: [Deposit!] @derivedFrom(field: "to")
+  flashloans: [FlashLoan!] @derivedFrom(field: "user")
   block: BigInt!
   timestamp: BigInt!
 }
@@ -42,6 +82,44 @@ type MasterContractApproval @entity {
   approved: Boolean!
 }
 
+type AssetTx @entity {
+    id: ID!
+    lendingPair: LendingPair!
+    token: Token!
+    root: UserLendingPairData!
+    amount: BigInt!
+    share: BigInt!
+    fraction: BigInt!
+    poolPercentage: BigInt!
+    block: BigInt!
+    timestamp: BigInt!
+}
+
+type CollateralTx @entity {
+    id: ID!
+    lendingPair: LendingPair!
+    token: Token!
+    root: UserLendingPairData!
+    amount: BigInt!
+    share: BigInt!
+    poolPercentage: BigInt!
+    block: BigInt!
+    timestamp: BigInt!
+}
+
+type BorrowTx @entity {
+    id: ID!
+    lendingPair: LendingPair!
+    token: Token!
+    root: UserLendingPairData!
+    amount: BigInt!
+    share: BigInt!
+    fraction: BigInt!
+    poolPercentage: BigInt!
+    block: BigInt!
+    timestamp: BigInt!
+}
+
 type UserLendingPairData @entity {
   # concatenate UserAddress with LendingPairAddress
   id: ID!
@@ -50,6 +128,9 @@ type UserLendingPairData @entity {
   userCollateralShare: BigInt!
   balanceOf: BigInt!
   userBorrowFraction: BigInt!
+  assetTxs: [AssetTx!] @derivedFrom(field: "root")
+  collateralTxs: [CollateralTx!] @derivedFrom(field: "root")
+  borrowTxs: [BorrowTx!] @derivedFrom(field: "root")
 }
 
 type LendingPair @entity {
@@ -90,4 +171,7 @@ type LendingPair @entity {
   utilization: BigInt!
   block: BigInt!
   timestamp: BigInt!
+  assetTxs: [AssetTx!] @derivedFrom(field: "lendingPair")
+  collateralTxs: [CollateralTx!] @derivedFrom(field: "lendingPair")
+  borrowTxs: [BorrowTx!] @derivedFrom(field: "lendingPair")
 }

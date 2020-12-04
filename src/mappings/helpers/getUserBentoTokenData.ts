@@ -7,7 +7,7 @@ export function getUserBentoTokenData(user: Address, token: Address): UserBentoT
   const tid = token.toHex()
   const id = uid.concat('-').concat(tid)
 
-  let userBentoTokenData = UserBentoTokenData.load(uid)
+  let userBentoTokenData = UserBentoTokenData.load(id)
 
   if (userBentoTokenData === null) {
     userBentoTokenData = new UserBentoTokenData(id)
