@@ -6,7 +6,7 @@ export function getMasterContractApproval(user: Address, masterContract: Address
   const mid = masterContract.toHex()
   const id = uid.concat('-').concat(mid)
 
-  let masterContractApproval = MasterContractApproval.load(uid)
+  let masterContractApproval = MasterContractApproval.load(id)
 
   if (masterContractApproval === null) {
     masterContractApproval = new MasterContractApproval(id)

@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "yarn lint && graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ matthewlilley/bento",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ clearwood/bento",
     "create-local": "graph create --node http://localhost:8020/ matthewlilley/bento",
     "remove-local": "graph remove --node http://localhost:8020/ matthewlilley/bento",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 matthewlilley/bento",

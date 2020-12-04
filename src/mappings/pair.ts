@@ -13,9 +13,11 @@ import {
   Transfer,
 } from '../../generated/templates/LendingPair/LendingPair'
 
-import { LendingPair } from '../../generated/schema'
+import { LendingPair, Token, PairTx } from '../../generated/schema'
 import { getUser } from './helpers/getUser'
-import { getUserLendingPairData } from './helpers/getUserLendingPairData'
+import { getUniqueId } from './helpers/utils'
+import {BIG_INT_MINUS_ONE} from './helpers/constants'
+import { getUserLendingPairData, getUserLendingPairDataId } from './helpers/getUserLendingPairData'
 import { log } from '@graphprotocol/graph-ts'
 
 export function handleApproval(event: Approval): void {
@@ -32,16 +34,34 @@ export function handleLogAddAsset(event: LogAddAsset): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ])
+  const share = event.params.share
+  const fraction = event.params.fraction
+  const lid = event.address.toHex()
 
-  const lendingPair = LendingPair.load(event.address.toHex())
-  lendingPair.totalSupply = lendingPair.totalSupply.plus(event.params.fraction)
-  lendingPair.totalAssetShare = lendingPair.totalAssetShare.plus(event.params.share)
+  const lendingPair = LendingPair.load(lid)
+  lendingPair.totalSupply = lendingPair.totalSupply.plus(fraction)
+  lendingPair.totalAssetShare = lendingPair.totalAssetShare.plus(share)
   lendingPair.save()
 
   const user = getUser(event.params.user, event.block)
   const userData = getUserLendingPairData(event.params.user, event.address)
-  userData.balanceOf = userData.balanceOf.plus(event.params.fraction)
+  userData.balanceOf = userData.balanceOf.plus(fraction)
   userData.save()
+
+  const tid = lendingPair.asset.toHex()
+  const asset = Token.load(tid)
+  const assetTx = new PairTx(getUniqueId(event))
+  assetTx.root = getUserLendingPairDataId(event.params.user, event.address)
+  assetTx.amount = asset.totalAmount.times(share.div(asset.totalShare))
+  assetTx.type = "assetTx"
+  assetTx.lendingPair = lid
+  assetTx.token = tid
+  assetTx.fraction = fraction
+  assetTx.share = share
+  assetTx.poolPercentage = fraction.div(lendingPair.totalSupply)
+  assetTx.block = event.block.number
+  assetTx.timestamp = event.block.timestamp
+  assetTx.save()
 }
 
 export function handleLogAddBorrow(event: LogAddBorrow): void {
@@ -50,10 +70,33 @@ export function handleLogAddBorrow(event: LogAddBorrow): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ])
-  const lendingPair = LendingPair.load(event.address.toHex())
-  lendingPair.totalBorrowFraction = lendingPair.totalBorrowFraction.plus(event.params.fraction)
-  lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.plus(event.params.share)
+  const share = event.params.share
+  const fraction = event.params.fraction
+  const lid = event.address.toHex()
+
+  const lendingPair = LendingPair.load(lid)
+  lendingPair.totalBorrowFraction = lendingPair.totalBorrowFraction.plus(fraction)
+  lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.plus(share)
   lendingPair.save()
+
+  const user = getUserLendingPairData(event.params.user, event.address)
+  user.userBorrowFraction = user.userBorrowFraction.plus(fraction)
+  user.save()
+
+  const tid = lendingPair.asset.toHex()
+  const asset = Token.load(tid)
+  const borrowTx = new PairTx(getUniqueId(event))
+  borrowTx.type = "borrowTx"
+  borrowTx.root = getUserLendingPairDataId(event.params.user, event.address)
+  borrowTx.amount = asset.totalAmount.times(share.div(asset.totalShare))
+  borrowTx.lendingPair = lid
+  borrowTx.token = tid
+  borrowTx.fraction = fraction
+  borrowTx.share = share
+  borrowTx.poolPercentage = fraction.div(lendingPair.totalBorrowFraction)
+  borrowTx.block = event.block.number
+  borrowTx.timestamp = event.block.timestamp
+  borrowTx.save()
 }
 
 export function handleLogAddCollateral(event: LogAddCollateral): void {
@@ -61,14 +104,30 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ])
-  const lendingPair = LendingPair.load(event.address.toHex())
-  lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.plus(event.params.share)
+  const share = event.params.share
+  const lid = event.address.toHex()
+  const lendingPair = LendingPair.load(lid)
+  lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.plus(share)
   lendingPair.save()
 
   const user = getUser(event.params.user, event.block)
   const userData = getUserLendingPairData(event.params.user, event.address)
-  userData.userCollateralShare = userData.userCollateralShare.plus(event.params.share)
+  userData.userCollateralShare = userData.userCollateralShare.plus(share)
   userData.save()
+
+  const tid = lendingPair.collateral.toHex()
+  const collateral = Token.load(tid)
+  const collateralTx = new PairTx(getUniqueId(event))
+  collateralTx.type = "collateralTx"
+  collateralTx.root = getUserLendingPairDataId(event.params.user, event.address)
+  collateralTx.lendingPair = lid
+  collateralTx.token = tid
+  collateralTx.share = share
+  collateralTx.amount = collateral.totalAmount.times(share.div(collateral.totalShare))
+  collateralTx.poolPercentage = share.div(lendingPair.totalCollateralShare)
+  collateralTx.block = event.block.number
+  collateralTx.timestamp = event.block.timestamp
+  collateralTx.save()
 }
 
 export function handleLogExchangeRate(event: LogExchangeRate): void {
@@ -84,14 +143,33 @@ export function handleLogRemoveAsset(event: LogRemoveAsset): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ])
-  const lendingPair = LendingPair.load(event.address.toHex())
-  lendingPair.totalSupply = lendingPair.totalSupply.minus(event.params.fraction)
-  lendingPair.totalAssetShare = lendingPair.totalAssetShare.minus(event.params.share)
+  const fraction = event.params.fraction
+  const share = event.params.share
+  const lid = event.address.toHex()
+
+  const lendingPair = LendingPair.load(lid)
+  lendingPair.totalSupply = lendingPair.totalSupply.minus(fraction)
+  lendingPair.totalAssetShare = lendingPair.totalAssetShare.minus(share)
   lendingPair.save()
 
   const user = getUserLendingPairData(event.params.user, event.address)
-  user.balanceOf = user.balanceOf.minus(event.params.fraction)
+  user.balanceOf = user.balanceOf.minus(fraction)
   user.save()
+
+  const tid = lendingPair.asset.toHex()
+  const asset = Token.load(tid)
+  const assetTx = new PairTx(getUniqueId(event))
+  assetTx.type = "assetTx"
+  assetTx.root = getUserLendingPairDataId(event.params.user, event.address)
+  assetTx.lendingPair = lid
+  assetTx.token = tid
+  assetTx.amount = asset.totalAmount.times(share.div(asset.totalShare)).times(BIG_INT_MINUS_ONE)
+  assetTx.fraction = fraction
+  assetTx.share = share
+  assetTx.poolPercentage = fraction.div(lendingPair.totalSupply)
+  assetTx.block = event.block.number
+  assetTx.timestamp = event.block.timestamp
+  assetTx.save()
 }
 
 export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
@@ -100,14 +178,33 @@ export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ])
-  const lendingPair = LendingPair.load(event.address.toHex())
-  lendingPair.totalBorrowFraction = lendingPair.totalBorrowFraction.minus(event.params.fraction)
-  lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.minus(event.params.share)
+  const share = event.params.share
+  const fraction = event.params.fraction
+  const lid = event.address.toHex()
+
+  const lendingPair = LendingPair.load(lid)
+  lendingPair.totalBorrowFraction = lendingPair.totalBorrowFraction.minus(fraction)
+  lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.minus(share)
   lendingPair.save()
 
   const user = getUserLendingPairData(event.params.user, event.address)
-  user.userBorrowFraction = user.userBorrowFraction.minus(event.params.fraction)
+  user.userBorrowFraction = user.userBorrowFraction.minus(fraction)
   user.save()
+
+  const tid = lendingPair.asset.toHex()
+  const asset = Token.load(tid)
+  const borrowTx = new PairTx(getUniqueId(event))
+  borrowTx.type = "borrowTx"
+  borrowTx.root = getUserLendingPairDataId(event.params.user, event.address)
+  borrowTx.lendingPair = lid
+  borrowTx.token = tid
+  borrowTx.amount = asset.totalAmount.times(share.div(asset.totalShare)).times(BIG_INT_MINUS_ONE)
+  borrowTx.fraction = fraction
+  borrowTx.share = share
+  borrowTx.poolPercentage = fraction.div(lendingPair.totalBorrowFraction)
+  borrowTx.block = event.block.number
+  borrowTx.timestamp = event.block.timestamp
+  borrowTx.save()
 }
 
 export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
@@ -115,13 +212,30 @@ export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
     event.params.share.toString(),
     event.params.user.toHex(),
   ])
-  const lendingPair = LendingPair.load(event.address.toHex())
-  lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.minus(event.params.share)
+  const share = event.params.share
+  const lid = event.address.toHex()
+
+  const lendingPair = LendingPair.load(lid)
+  lendingPair.totalCollateralShare = lendingPair.totalCollateralShare.minus(share)
   lendingPair.save()
 
   const user = getUserLendingPairData(event.params.user, event.address)
-  user.userCollateralShare = user.userCollateralShare.minus(event.params.share)
+  user.userCollateralShare = user.userCollateralShare.minus(share)
   user.save()
+
+  const tid = lendingPair.collateral.toHex()
+  const collateral = Token.load(tid)
+  const collateralTx = new PairTx(getUniqueId(event))
+  collateralTx.type = "collateralTx"
+  collateralTx.root = getUserLendingPairDataId(event.params.user, event.address)
+  collateralTx.lendingPair = lid
+  collateralTx.token = tid
+  collateralTx.amount = collateral.totalAmount.times(share.div(collateral.totalShare)).times(BIG_INT_MINUS_ONE)
+  collateralTx.share = share
+  collateralTx.poolPercentage = share.div(lendingPair.totalCollateralShare)
+  collateralTx.block = event.block.number
+  collateralTx.timestamp = event.block.timestamp
+  collateralTx.save()
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

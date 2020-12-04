@@ -5,9 +5,8 @@ import { UserLendingPairData } from '../../../generated/schema'
 export function getUserLendingPairData(user: Address, pair: Address): UserLendingPairData {
   const uid = user.toHex()
   const pid = pair.toHex()
-  const id = uid.concat('-').concat(pid)
-
-  let userLendingPairData = UserLendingPairData.load(uid)
+  const id = getUserLendingPairDataId(user, pair)
+  let userLendingPairData = UserLendingPairData.load(id)
 
   if (userLendingPairData === null) {
     userLendingPairData = new UserLendingPairData(id)
@@ -20,4 +19,10 @@ export function getUserLendingPairData(user: Address, pair: Address): UserLendin
   }
 
   return userLendingPairData as UserLendingPairData
+}
+
+export function getUserLendingPairDataId(user: Address, pair: Address): string {
+  const uid = user.toHex()
+  const pid = pair.toHex()
+  return uid.concat('-').concat(pid)
 }

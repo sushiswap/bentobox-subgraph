@@ -1,5 +1,5 @@
 import { BIG_INT_ONE, BIG_INT_ZERO, MEDIUM_RISK_LENDING_PAIR_MASTER } from './helpers/constants'
-import { BentoBox, LendingPair, Token } from '../../generated/schema'
+import { BentoBox, LendingPair, Token, FlashLoan, Deposit, Withdrawal } from '../../generated/schema'
 import {
   BentoBox as BentoBoxContract,
   LogDeploy,
@@ -15,6 +15,7 @@ import { LendingPair as LendingPairContract } from '../../generated/BentoBox/Len
 import { LendingPair as LendingPairTemplate } from '../../generated/templates'
 import { getMasterContractApproval } from './helpers/getMasterContractApproval'
 import { getUser } from './helpers/getUser'
+import { getUniqueId } from './helpers/utils'
 import { getUserBentoTokenData } from './helpers/getUserBentoTokenData'
 
 export function handleLogDeploy(event: LogDeploy): void {
@@ -81,6 +82,7 @@ export function handleLogDeploy(event: LogDeploy): void {
     lendingPair.totalBorrowShare = BIG_INT_ZERO
     lendingPair.totalCollateralShare = BIG_INT_ZERO
     lendingPair.totalSupply = BIG_INT_ZERO
+    lendingPair.utilization = BIG_INT_ZERO
     lendingPair.block = event.block.number
     lendingPair.timestamp = event.block.timestamp
 
@@ -98,10 +100,11 @@ export function handleLogDeposit(event: LogDeposit): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ])
+  const tid = event.params.token.toHex()
 
   const bentoAddress = event.address.toHex()
 
-  let token = Token.load(event.params.token.toHex())
+  let token = Token.load(tid)
 
   if (token == null) {
     token = new Token(event.params.token.toHex())
@@ -116,10 +119,21 @@ export function handleLogDeposit(event: LogDeposit): void {
   token.totalShare = token.totalShare.plus(event.params.share)
   token.save()
 
-  const user = getUser(event.params.to, event.block)
+  getUser(event.params.to, event.block)
   const userTokenData = getUserBentoTokenData(event.params.to, event.params.token)
   userTokenData.share = userTokenData.share.plus(event.params.share)
   userTokenData.save()
+
+  const deposit = new Deposit(getUniqueId(event))
+  deposit.bentoBox = event.address.toHex()
+  deposit.from = event.params.from.toHex()
+  deposit.to = event.params.to.toHex()
+  deposit.token = tid
+  deposit.amount = event.params.amount
+  deposit.share = event.params.share
+  deposit.block = event.block.number
+  deposit.timestamp = event.block.timestamp
+  deposit.save()
 }
 
 export function handleLogFlashLoan(event: LogFlashLoan): void {
@@ -129,9 +143,22 @@ export function handleLogFlashLoan(event: LogFlashLoan): void {
     event.params.token.toHex(),
     event.params.user.toHex(),
   ])
-  const token = Token.load(event.params.token.toHex())
+  const tid = event.params.token.toHex()
+  const token = Token.load(tid)
   token.totalAmount = token.totalAmount.plus(event.params.feeAmount)
   token.save()
+
+  getUser(event.params.user, event.block)
+
+  const flashLoan = new FlashLoan(getUniqueId(event))
+  flashLoan.bentoBox = event.address.toHex()
+  flashLoan.user = event.params.user.toHex()
+  flashLoan.token = tid
+  flashLoan.amount = event.params.amount
+  flashLoan.feeAmount = event.params.feeAmount
+  flashLoan.block = event.block.number
+  flashLoan.timestamp = event.block.timestamp
+  flashLoan.save()
 }
 
 export function handleLogSetMasterContractApproval(event: LogSetMasterContractApproval): void {
@@ -140,7 +167,7 @@ export function handleLogSetMasterContractApproval(event: LogSetMasterContractAp
     event.params.masterContract.toHex(),
     event.params.user.toHex(),
   ])
-  const user = getUser(event.params.user, event.block)
+  getUser(event.params.user, event.block)
   const masterContractApproval = getMasterContractApproval(event.params.user, event.params.masterContract)
   masterContractApproval.approved = event.params.approved
   masterContractApproval.save()
@@ -159,7 +186,7 @@ export function handleLogTransfer(event: LogTransfer): void {
   sender.share = sender.share.minus(event.params.share)
   sender.save()
 
-  const receiverUser = getUser(event.params.to, event.block)
+  getUser(event.params.to, event.block)
   const receiver = getUserBentoTokenData(event.params.to, event.params.token)
   receiver.share = receiver.share.plus(event.params.share)
   receiver.save()
@@ -173,8 +200,20 @@ export function handleLogWithdraw(event: LogWithdraw): void {
     event.params.to.toHex(),
     event.params.token.toHex(),
   ])
+  const tid = event.params.token.toHex()
 
-  const token = Token.load(event.params.token.toHex())
+  const withdrawal = new Withdrawal(getUniqueId(event))
+  withdrawal.bentoBox = event.address.toHex()
+  withdrawal.from = event.params.from.toHex()
+  withdrawal.to = event.params.to
+  withdrawal.token = tid
+  withdrawal.amount = event.params.amount
+  withdrawal.share = event.params.share
+  withdrawal.block = event.block.number
+  withdrawal.timestamp = event.block.timestamp
+  withdrawal.save()
+
+  const token = Token.load(tid)
   token.totalAmount = token.totalAmount.minus(event.params.amount)
   token.totalShare = token.totalShare.minus(event.params.share)
   token.save()
