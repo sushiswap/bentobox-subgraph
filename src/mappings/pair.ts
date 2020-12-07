@@ -2,10 +2,10 @@ import {
   Approval,
   LendingPair as LendingPairContract,
   LogAddAsset,
+  LogAccrue,
   LogAddBorrow,
   LogAddCollateral,
   LogExchangeRate,
-  LogInterestRate,
   LogRemoveAsset,
   LogRemoveBorrow,
   LogRemoveCollateral,
@@ -264,10 +264,17 @@ export function handleTransfer(event: Transfer): void {
   receiver.save()
 }
 
-export function handleLogInterestRate(event: LogInterestRate): void {
-  log.info('[BentoBox:LendingPair] Log Interest Rate {}', [event.params.rate.toString()])
+export function handleLogAccrue(event: LogAccrue): void {
+  log.info('[BentoBox:LendingPair] Log Accrue {} {} {} {}', [event.params.shareAccrued.toString(), event.params.shareFee.toString(), event.params.rate.toString(), event.params.utilization.toString()])
   const lendingPair = LendingPair.load(event.address.toHex())
+  const extraShare = event.params.shareAccrued
+  const feeShare = event.params.shareFee
+  lendingPair.totalAssetShare = lendingPair.totalAssetShare.plus(extraShare.minus(feeShare))
+  lendingPair.totalBorrowShare = lendingPair.totalBorrowShare.plus(extraShare)
+  lendingPair.feesPendingShare = lendingPair.feesPendingShare.plus(feeShare)
   lendingPair.interestPerBlock = event.params.rate
   lendingPair.utilization = event.params.utilization
+  lendingPair.block = event.block.number
+  lendingPair.timestamp = event.block.timestamp
   lendingPair.save()
 }
