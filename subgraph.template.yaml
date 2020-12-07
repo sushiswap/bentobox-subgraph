@@ -42,7 +42,7 @@ dataSources:
         - event: LogWithdraw(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleLogWithdraw
       file: ./src/mappings/bentobox.ts
-      
+
 templates:
   - kind: ethereum/contract
     name: LendingPair
@@ -72,14 +72,14 @@ templates:
           handler: handleApproval
         - event: LogAddAsset(indexed address,uint256,uint256)
           handler: handleLogAddAsset
+        - event: LogAccrue(uint256,uint256,uint256,uint256)
+          handler: handleLogAccrue
         - event: LogAddBorrow(indexed address,uint256,uint256)
           handler: handleLogAddBorrow
         - event: LogAddCollateral(indexed address,uint256)
           handler: handleLogAddCollateral
         - event: LogExchangeRate(uint256)
           handler: handleLogExchangeRate
-        - event: LogInterestRate(uint256,uint256)
-          handler: handleLogInterestRate
         - event: LogRemoveAsset(indexed address,uint256,uint256)
           handler: handleLogRemoveAsset
         - event: LogRemoveBorrow(indexed address,uint256,uint256)
