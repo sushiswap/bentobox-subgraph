@@ -274,6 +274,7 @@ export function handleLogAccrue(event: LogAccrue): void {
   lendingPair.feesPendingShare = lendingPair.feesPendingShare.plus(feeShare)
   lendingPair.interestPerBlock = event.params.rate
   lendingPair.utilization = event.params.utilization
+  lendingPair.lastBlockAccrued = event.block.number
   lendingPair.block = event.block.number
   lendingPair.timestamp = event.block.timestamp
   lendingPair.save()
