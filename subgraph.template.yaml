@@ -17,7 +17,6 @@ dataSources:
       entities:
         - LogDeploy
         - LogDeposit
-        - LogFlashLoan
         - LogSetMasterContractApproval
         - LogTransfer
         - LogWithdraw
@@ -31,15 +30,13 @@ dataSources:
       eventHandlers:
         - event: LogDeploy(indexed address,bytes,indexed address)
           handler: handleLogDeploy
-        - event: LogDeposit(indexed address,indexed address,indexed address,uint256,uint256)
+        - event: LogDeposit(indexed address,indexed address,indexed address,uint256)
           handler: handleLogDeposit
-        - event: LogFlashLoan(indexed address,indexed address,uint256,uint256)
-          handler: handleLogFlashLoan
         - event: LogSetMasterContractApproval(indexed address,indexed address,indexed bool)
           handler: handleLogSetMasterContractApproval
-        - event: LogTransfer(indexed address,indexed address,indexed address,uint256,uint256)
+        - event: LogTransfer(indexed address,indexed address,indexed address,uint256)
           handler: handleLogTransfer
-        - event: LogWithdraw(indexed address,indexed address,indexed address,uint256,uint256)
+        - event: LogWithdraw(indexed address,indexed address,indexed address,uint256)
           handler: handleLogWithdraw
       file: ./src/mappings/bentobox.ts
 
@@ -90,4 +87,10 @@ templates:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
+        - event: LogFeeTo(indexed address)
+          handler: handleLogFeeTo
+        - event: LogDev(indexed address)
+          handler: handleLogDev
+        - event: LogWithdrawFees()
+          handler: handleLogWithdraw
       file: ./src/mappings/pair.ts

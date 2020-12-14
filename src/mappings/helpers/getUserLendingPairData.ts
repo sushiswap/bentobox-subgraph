@@ -12,7 +12,7 @@ export function getUserLendingPairData(user: Address, pair: Address): UserLendin
     userLendingPairData = new UserLendingPairData(id)
     userLendingPairData.owner = uid
     userLendingPairData.lendingPair = pid
-    userLendingPairData.userCollateralShare = BIG_INT_ZERO
+    userLendingPairData.userCollateralAmount = BIG_INT_ZERO
     userLendingPairData.balanceOf = BIG_INT_ZERO
     userLendingPairData.userBorrowFraction = BIG_INT_ZERO
     userLendingPairData.save()

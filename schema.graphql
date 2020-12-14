@@ -7,21 +7,8 @@ type BentoBox @entity {
   WETH: Bytes!
   withdrawals: [Withdrawal!] @derivedFrom(field: "bentoBox")
   deposits: [Deposit!] @derivedFrom(field: "bentoBox")
-  flashloans: [FlashLoan!] @derivedFrom(field: "bentoBox")
   lendingPairsCount: BigInt!
 }
-
-type FlashLoan @entity {
-  id: ID!
-  bentoBox: BentoBox!
-  user: User!
-  token: Token!
-  amount: BigInt!
-  feeAmount: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
 
 type Deposit @entity {
   id: ID!
@@ -30,7 +17,6 @@ type Deposit @entity {
   to: User!
   token: Token!
   amount: BigInt!
-  share: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }
@@ -44,7 +30,6 @@ type Withdrawal @entity {
   to: Bytes!
   token: Token!
   amount: BigInt!
-  share: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }
@@ -52,8 +37,7 @@ type Withdrawal @entity {
 type Token @entity {
   id: ID!
   bentoBox: BentoBox!
-  totalShare: BigInt!
-  totalAmount: BigInt!
+  totalSupply: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }
@@ -65,7 +49,6 @@ type User @entity {
   masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "owner")
   withdrawals: [Withdrawal!] @derivedFrom(field: "from")
   deposits: [Deposit!] @derivedFrom(field: "to")
-  flashloans: [FlashLoan!] @derivedFrom(field: "user")
   block: BigInt!
   timestamp: BigInt!
 }
@@ -75,7 +58,7 @@ type UserBentoTokenData @entity {
   id: ID!
   owner: User!
   token: Token!
-  share: BigInt!
+  amount: BigInt!
 }
 
 type MasterContractApproval @entity {
@@ -98,7 +81,6 @@ type PairTx @entity {
     token: Token!
     root: UserLendingPairData!
     amount: BigInt!
-    share: BigInt!
     fraction: BigInt
     poolPercentage: BigInt!
     block: BigInt!
@@ -110,7 +92,7 @@ type UserLendingPairData @entity {
   id: ID!
   lendingPair: LendingPair!
   owner: User!
-  userCollateralShare: BigInt!
+  userCollateralAmount: BigInt!
   balanceOf: BigInt!
   userBorrowFraction: BigInt!
   transactions: [PairTx!] @derivedFrom(field: "root")
@@ -128,7 +110,7 @@ type LendingPair @entity {
   devFee: BigInt!
   exchangeRate: BigInt!
   feeTo: Bytes!
-  feesPendingShare: BigInt!
+  feesPendingAmount: BigInt!
   interestElasticity: BigInt!
   interestPerBlock: BigInt!
   lastBlockAccrued: BigInt!
@@ -146,11 +128,11 @@ type LendingPair @entity {
   protocolFee: BigInt!
   startingInterestPerBlock: BigInt!
   symbol: String!
-  totalAssetShare: BigInt!
+  totalAssetAmount: BigInt!
+  totalAssetFraction: BigInt!
   totalBorrowFraction: BigInt!
-  totalBorrowShare: BigInt!
-  totalCollateralShare: BigInt!
-  totalSupply: BigInt!
+  totalBorrowAmount: BigInt!
+  totalCollateralAmount: BigInt!
   utilization: BigInt!
   block: BigInt!
   timestamp: BigInt!

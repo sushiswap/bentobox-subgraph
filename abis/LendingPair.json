@@ -41,13 +41,13 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "shareAccrued",
+          "name": "accruedAmount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "shareFee",
+          "name": "feeAmount",
           "type": "uint256"
         },
         {
@@ -78,7 +78,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -103,7 +103,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -128,7 +128,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         }
       ],
@@ -186,7 +186,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -211,7 +211,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -236,11 +236,17 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         }
       ],
       "name": "LogRemoveCollateral",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "LogWithdrawFees",
       "type": "event"
     },
     {
@@ -295,6 +301,53 @@
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "accrueInfo",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "interestPerBlock",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "lastBlockAccrued",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint128",
+          "name": "feesPendingAmount",
+          "type": "uint128"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -469,46 +522,7 @@
     },
     {
       "inputs": [],
-      "name": "feesPendingShare",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "interestElasticity",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "interestPerBlock",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "lastBlockAccrued",
       "outputs": [
         {
           "internalType": "uint256",
@@ -592,19 +606,6 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "name",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -791,12 +792,17 @@
     },
     {
       "inputs": [],
-      "name": "symbol",
+      "name": "totalAsset",
       "outputs": [
         {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
+          "internalType": "uint128",
+          "name": "amount",
+          "type": "uint128"
+        },
+        {
+          "internalType": "uint128",
+          "name": "fraction",
+          "type": "uint128"
         }
       ],
       "stateMutability": "view",
@@ -804,12 +810,17 @@
     },
     {
       "inputs": [],
-      "name": "totalAssetShare",
+      "name": "totalBorrow",
       "outputs": [
         {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
+          "internalType": "uint128",
+          "name": "amount",
+          "type": "uint128"
+        },
+        {
+          "internalType": "uint128",
+          "name": "fraction",
+          "type": "uint128"
         }
       ],
       "stateMutability": "view",
@@ -817,46 +828,7 @@
     },
     {
       "inputs": [],
-      "name": "totalBorrowFraction",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalBorrowShare",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalCollateralShare",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalSupply",
+      "name": "totalCollateralAmount",
       "outputs": [
         {
           "internalType": "uint256",
@@ -973,7 +945,7 @@
           "type": "address"
         }
       ],
-      "name": "userCollateralShare",
+      "name": "userCollateralAmount",
       "outputs": [
         {
           "internalType": "uint256",
@@ -982,6 +954,45 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -1141,7 +1152,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         }
       ],
@@ -1154,7 +1165,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -1203,7 +1214,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         }
       ],
@@ -1216,7 +1227,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -1234,7 +1245,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -1252,7 +1263,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -1324,7 +1335,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "share",
+          "name": "amount",
           "type": "uint256"
         },
         {
@@ -1409,12 +1420,12 @@
         },
         {
           "internalType": "uint256",
-          "name": "assetShare",
+          "name": "assetAmount",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "minCollateralShare",
+          "name": "minCollateralAmount",
           "type": "uint256"
         }
       ],
@@ -1432,7 +1443,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "borrowShare",
+          "name": "borrowFraction",
           "type": "uint256"
         },
         {
