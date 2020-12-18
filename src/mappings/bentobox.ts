@@ -1,10 +1,9 @@
 import { BIG_INT_ONE, BIG_INT_ZERO, MEDIUM_RISK_LENDING_PAIR_MASTER } from './helpers/constants'
-import { BentoBox, LendingPair, Token, FlashLoan, Deposit, Withdrawal } from '../../generated/schema'
+import { BentoBox, LendingPair, Token, Deposit, Withdrawal } from '../../generated/schema'
 import {
   BentoBox as BentoBoxContract,
   LogDeploy,
   LogDeposit,
-  LogFlashLoan,
   LogSetMasterContractApproval,
   LogTransfer,
   LogWithdraw,
@@ -59,15 +58,15 @@ export function handleLogDeploy(event: LogDeploy): void {
     lendingPair.devFee = lendingPairContract.devFee()
     lendingPair.exchangeRate = lendingPairContract.exchangeRate()
     lendingPair.feeTo = lendingPairContract.feeTo()
-    lendingPair.feesPendingShare = lendingPairContract.feesPendingShare()
+    lendingPair.feesPendingAmount = BIG_INT_ZERO
     lendingPair.interestElasticity = lendingPairContract.interestElasticity()
-    lendingPair.interestPerBlock = lendingPairContract.interestPerBlock()
-    lendingPair.lastBlockAccrued = lendingPairContract.lastBlockAccrued()
+    lendingPair.lastBlockAccrued = BIG_INT_ZERO
     lendingPair.liquidationMultiplier = lendingPairContract.liquidationMultiplier()
     lendingPair.masterContract = lendingPairContract.masterContract()
     lendingPair.maximumInterestPerBlock = lendingPairContract.maximumInterestPerBlock()
     lendingPair.maximumTargetUtilization = lendingPairContract.maximumTargetUtilization()
     lendingPair.minimumInterestPerBlock = lendingPairContract.minimumInterestPerBlock()
+    lendingPair.interestPerBlock = lendingPair.minimumInterestPerBlock
     lendingPair.minimumTargetUtilization = lendingPairContract.minimumTargetUtilization()
     lendingPair.name = lendingPairContract.name()
     lendingPair.openCollaterizationRate = lendingPairContract.openCollaterizationRate()
@@ -77,11 +76,11 @@ export function handleLogDeploy(event: LogDeploy): void {
     lendingPair.protocolFee = lendingPairContract.protocolFee()
     lendingPair.startingInterestPerBlock = lendingPairContract.startingInterestPerBlock()
     lendingPair.symbol = lendingPairContract.symbol()
-    lendingPair.totalAssetShare = BIG_INT_ZERO
+    lendingPair.totalAssetAmount = BIG_INT_ZERO
+    lendingPair.totalAssetFraction = BIG_INT_ZERO
     lendingPair.totalBorrowFraction = BIG_INT_ZERO
-    lendingPair.totalBorrowShare = BIG_INT_ZERO
-    lendingPair.totalCollateralShare = BIG_INT_ZERO
-    lendingPair.totalSupply = BIG_INT_ZERO
+    lendingPair.totalBorrowAmount = BIG_INT_ZERO
+    lendingPair.totalCollateralAmount = BIG_INT_ZERO
     lendingPair.utilization = BIG_INT_ZERO
     lendingPair.block = event.block.number
     lendingPair.timestamp = event.block.timestamp
@@ -96,7 +95,6 @@ export function handleLogDeposit(event: LogDeposit): void {
   log.info('[BentoBox] Log Deposit {} {} {} {} {}', [
     event.params.amount.toString(),
     event.params.from.toHex(),
-    event.params.share.toString(),
     event.params.to.toHex(),
     event.params.token.toHex(),
   ])
@@ -109,19 +107,17 @@ export function handleLogDeposit(event: LogDeposit): void {
   if (token == null) {
     token = new Token(event.params.token.toHex())
     token.bentoBox = bentoAddress
-    token.totalShare = BIG_INT_ZERO
-    token.totalAmount = BIG_INT_ZERO
+    token.totalSupply = BIG_INT_ZERO
     token.block = event.block.number
     token.timestamp = event.block.timestamp
   }
 
-  token.totalAmount = token.totalAmount.plus(event.params.amount)
-  token.totalShare = token.totalShare.plus(event.params.share)
+  token.totalSupply = token.totalSupply.plus(event.params.amount)
   token.save()
 
   getUser(event.params.to, event.block)
   const userTokenData = getUserBentoTokenData(event.params.to, event.params.token)
-  userTokenData.share = userTokenData.share.plus(event.params.share)
+  userTokenData.amount = userTokenData.amount.plus(event.params.amount)
   userTokenData.save()
 
   const deposit = new Deposit(getUniqueId(event))
@@ -130,35 +126,10 @@ export function handleLogDeposit(event: LogDeposit): void {
   deposit.to = event.params.to.toHex()
   deposit.token = tid
   deposit.amount = event.params.amount
-  deposit.share = event.params.share
+  deposit.amount = event.params.amount
   deposit.block = event.block.number
   deposit.timestamp = event.block.timestamp
   deposit.save()
-}
-
-export function handleLogFlashLoan(event: LogFlashLoan): void {
-  log.info('[BentoBox] Log Flash Loan {} {} {} {}', [
-    event.params.amount.toString(),
-    event.params.feeAmount.toString(),
-    event.params.token.toHex(),
-    event.params.user.toHex(),
-  ])
-  const tid = event.params.token.toHex()
-  const token = Token.load(tid)
-  token.totalAmount = token.totalAmount.plus(event.params.feeAmount)
-  token.save()
-
-  getUser(event.params.user, event.block)
-
-  const flashLoan = new FlashLoan(getUniqueId(event))
-  flashLoan.bentoBox = event.address.toHex()
-  flashLoan.user = event.params.user.toHex()
-  flashLoan.token = tid
-  flashLoan.amount = event.params.amount
-  flashLoan.feeAmount = event.params.feeAmount
-  flashLoan.block = event.block.number
-  flashLoan.timestamp = event.block.timestamp
-  flashLoan.save()
 }
 
 export function handleLogSetMasterContractApproval(event: LogSetMasterContractApproval): void {
@@ -177,18 +148,17 @@ export function handleLogTransfer(event: LogTransfer): void {
   log.info('[BentoBox] Log Transfer {} {} {} {} {}', [
     event.params.amount.toString(),
     event.params.from.toHex(),
-    event.params.share.toString(),
     event.params.to.toHex(),
     event.params.token.toHex(),
   ])
 
   const sender = getUserBentoTokenData(event.params.from, event.params.token)
-  sender.share = sender.share.minus(event.params.share)
+  sender.amount = sender.amount.minus(event.params.amount)
   sender.save()
 
   getUser(event.params.to, event.block)
   const receiver = getUserBentoTokenData(event.params.to, event.params.token)
-  receiver.share = receiver.share.plus(event.params.share)
+  receiver.amount = receiver.amount.plus(event.params.amount)
   receiver.save()
 }
 
@@ -196,7 +166,6 @@ export function handleLogWithdraw(event: LogWithdraw): void {
   log.info('[BentoBox] Log Withdraw {} {} {} {} {}', [
     event.params.amount.toString(),
     event.params.from.toHex(),
-    event.params.share.toString(),
     event.params.to.toHex(),
     event.params.token.toHex(),
   ])
@@ -208,17 +177,15 @@ export function handleLogWithdraw(event: LogWithdraw): void {
   withdrawal.to = event.params.to
   withdrawal.token = tid
   withdrawal.amount = event.params.amount
-  withdrawal.share = event.params.share
   withdrawal.block = event.block.number
   withdrawal.timestamp = event.block.timestamp
   withdrawal.save()
 
   const token = Token.load(tid)
-  token.totalAmount = token.totalAmount.minus(event.params.amount)
-  token.totalShare = token.totalShare.minus(event.params.share)
+  token.totalSupply = token.totalSupply.minus(event.params.amount)
   token.save()
 
   const sender = getUserBentoTokenData(event.params.from, event.params.token)
-  sender.share = sender.share.minus(event.params.share)
+  sender.amount = sender.amount.minus(event.params.amount)
   sender.save()
 }

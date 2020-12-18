@@ -13,7 +13,7 @@ export function getUserBentoTokenData(user: Address, token: Address): UserBentoT
     userBentoTokenData = new UserBentoTokenData(id)
     userBentoTokenData.owner = uid
     userBentoTokenData.token = tid
-    userBentoTokenData.share = BIG_INT_ZERO
+    userBentoTokenData.amount = BIG_INT_ZERO
     userBentoTokenData.save()
   }
 

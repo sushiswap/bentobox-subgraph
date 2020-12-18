@@ -7,9 +7,9 @@ dataSources:
     name: BentoBox
     network: 'ropsten'
     source:
-      address: '0x42192Cc25e0feb6debbd5fB32180Ee706c80F322'
+      address: '0xAac3d83Af05428A2283FB762Ae99C07FF85d7602'
       abi: BentoBox
-      startBlock: 9175963
+      startBlock: 9244711
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -17,7 +17,6 @@ dataSources:
       entities:
         - LogDeploy
         - LogDeposit
-        - LogFlashLoan
         - LogSetMasterContractApproval
         - LogTransfer
         - LogWithdraw
@@ -31,18 +30,16 @@ dataSources:
       eventHandlers:
         - event: LogDeploy(indexed address,bytes,indexed address)
           handler: handleLogDeploy
-        - event: LogDeposit(indexed address,indexed address,indexed address,uint256,uint256)
+        - event: LogDeposit(indexed address,indexed address,indexed address,uint256)
           handler: handleLogDeposit
-        - event: LogFlashLoan(indexed address,indexed address,uint256,uint256)
-          handler: handleLogFlashLoan
         - event: LogSetMasterContractApproval(indexed address,indexed address,indexed bool)
           handler: handleLogSetMasterContractApproval
-        - event: LogTransfer(indexed address,indexed address,indexed address,uint256,uint256)
+        - event: LogTransfer(indexed address,indexed address,indexed address,uint256)
           handler: handleLogTransfer
-        - event: LogWithdraw(indexed address,indexed address,indexed address,uint256,uint256)
+        - event: LogWithdraw(indexed address,indexed address,indexed address,uint256)
           handler: handleLogWithdraw
       file: ./src/mappings/bentobox.ts
-      
+
 templates:
   - kind: ethereum/contract
     name: LendingPair
@@ -72,14 +69,14 @@ templates:
           handler: handleApproval
         - event: LogAddAsset(indexed address,uint256,uint256)
           handler: handleLogAddAsset
+        - event: LogAccrue(uint256,uint256,uint256,uint256)
+          handler: handleLogAccrue
         - event: LogAddBorrow(indexed address,uint256,uint256)
           handler: handleLogAddBorrow
         - event: LogAddCollateral(indexed address,uint256)
           handler: handleLogAddCollateral
         - event: LogExchangeRate(uint256)
           handler: handleLogExchangeRate
-        - event: LogInterestRate(uint256,uint256)
-          handler: handleLogInterestRate
         - event: LogRemoveAsset(indexed address,uint256,uint256)
           handler: handleLogRemoveAsset
         - event: LogRemoveBorrow(indexed address,uint256,uint256)
@@ -90,4 +87,10 @@ templates:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
+        - event: LogFeeTo(indexed address)
+          handler: handleLogFeeTo
+        - event: LogDev(indexed address)
+          handler: handleLogDev
+        - event: LogWithdrawFees()
+          handler: handleLogWithdraw
       file: ./src/mappings/pair.ts
