@@ -8,7 +8,7 @@ import {
   LogTransfer,
   LogWithdraw,
 } from '../../generated/BentoBox/BentoBox'
-import { dataSource, log, BigInt } from '@graphprotocol/graph-ts'
+import { Address, dataSource, log, BigInt } from '@graphprotocol/graph-ts'
 
 import { LendingPair as LendingPairContract } from '../../generated/BentoBox/LendingPair'
 import { LendingPair as LendingPairTemplate } from '../../generated/templates'
@@ -64,6 +64,7 @@ export function handleLogDeploy(event: LogDeploy): void {
     lendingPair.exchangeRate = lendingPairContract.exchangeRate()
     lendingPair.feeTo = lendingPairContract.feeTo()
     lendingPair.feesPendingAmount = BIG_INT_ZERO
+    lendingPair.interestPerBlock = BIG_INT_ZERO
     lendingPair.lastBlockAccrued = BIG_INT_ZERO
     lendingPair.masterContract = lendingPairContract.masterContract()
     lendingPair.name = lendingPairContract.name()

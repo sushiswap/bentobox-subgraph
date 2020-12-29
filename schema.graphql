@@ -118,7 +118,6 @@ type LendingPair @entity {
   oracle: Bytes!
   owner: Bytes!
   pendingOwner: Bytes!
-  protocolFee: BigInt!
   symbol: String!
   totalAssetAmount: BigInt!
   totalAssetFraction: BigInt!
