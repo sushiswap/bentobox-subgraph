@@ -4,7 +4,7 @@ type BentoBox @entity {
   id: ID!
   lendingPairs: [LendingPair!]! @derivedFrom(field: "bentoBox")
   tokens: [Token!] @derivedFrom(field: "bentoBox")
-  WETH: Bytes!
+  WethToken: Bytes!
   withdrawals: [Withdrawal!] @derivedFrom(field: "bentoBox")
   deposits: [Deposit!] @derivedFrom(field: "bentoBox")
   lendingPairsCount: BigInt!
@@ -102,31 +102,20 @@ type LendingPair @entity {
   id: ID!
   asset: Bytes!
   bentoBox: BentoBox!
-  borrowOpeningFee: BigInt!
-  closedCollaterizationRate: BigInt!
   collateral: Bytes!
   decimals: Int!
   dev: Bytes
-  devFee: BigInt!
   exchangeRate: BigInt!
   feeTo: Bytes!
   feesPendingAmount: BigInt!
-  interestElasticity: BigInt!
   interestPerBlock: BigInt!
   lastBlockAccrued: BigInt!
-  liquidationMultiplier: BigInt!
   masterContract: Bytes!
-  maximumInterestPerBlock: BigInt!
-  maximumTargetUtilization: BigInt!
-  minimumInterestPerBlock: BigInt!
-  minimumTargetUtilization: BigInt!
   name: String!
-  openCollaterizationRate: BigInt!
   oracle: Bytes!
   owner: Bytes!
   pendingOwner: Bytes!
   protocolFee: BigInt!
-  startingInterestPerBlock: BigInt!
   symbol: String!
   totalAssetAmount: BigInt!
   totalAssetFraction: BigInt!

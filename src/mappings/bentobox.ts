@@ -8,7 +8,7 @@ import {
   LogTransfer,
   LogWithdraw,
 } from '../../generated/BentoBox/BentoBox'
-import { dataSource, log } from '@graphprotocol/graph-ts'
+import { dataSource, log, BigInt } from '@graphprotocol/graph-ts'
 
 import { LendingPair as LendingPairContract } from '../../generated/BentoBox/LendingPair'
 import { LendingPair as LendingPairTemplate } from '../../generated/templates'
@@ -19,7 +19,7 @@ import { getUserBentoTokenData } from './helpers/getUserBentoTokenData'
 
 export function handleLogDeploy(event: LogDeploy): void {
   log.info('[BentoBox] Log Deploy {} {} {}', [
-    event.params.clone_address.toHex(),
+    event.params.cloneAddress.toHex(),
     event.params.data.toHex(),
     event.params.masterContract.toHex(),
   ])
@@ -29,7 +29,7 @@ export function handleLogDeploy(event: LogDeploy): void {
   if (bentoBox == null) {
     const bentoBoxContract = BentoBoxContract.bind(dataSource.address())
     bentoBox = new BentoBox(dataSource.address().toHex())
-    bentoBox.WETH = bentoBoxContract.WETH()
+    bentoBox.WethToken = bentoBoxContract.WethToken()
     bentoBox.lendingPairsCount = BIG_INT_ZERO
   }
 
@@ -38,43 +38,30 @@ export function handleLogDeploy(event: LogDeploy): void {
   bentoBox.save()
 
   // Already initilised
-  if (LendingPair.load(event.params.clone_address.toHex())) {
+  if (LendingPair.load(event.params.cloneAddress.toHex())) {
     return
   }
 
   if (event.params.masterContract == MEDIUM_RISK_LENDING_PAIR_MASTER) {
     // Bind to contract for easy data access on creation
-    const lendingPairContract = LendingPairContract.bind(event.params.clone_address)
+    const lendingPairContract = LendingPairContract.bind(event.params.cloneAddress)
 
-    const lendingPair = new LendingPair(event.params.clone_address.toHex())
+    const lendingPair = new LendingPair(event.params.cloneAddress.toHex())
 
     lendingPair.asset = lendingPairContract.asset()
     lendingPair.bentoBox = bentoBox.id
-    lendingPair.borrowOpeningFee = lendingPairContract.borrowOpeningFee()
-    lendingPair.closedCollaterizationRate = lendingPairContract.closedCollaterizationRate()
     lendingPair.collateral = lendingPairContract.collateral()
     lendingPair.decimals = lendingPairContract.decimals()
     lendingPair.dev = lendingPairContract.dev()
-    lendingPair.devFee = lendingPairContract.devFee()
     lendingPair.exchangeRate = lendingPairContract.exchangeRate()
     lendingPair.feeTo = lendingPairContract.feeTo()
     lendingPair.feesPendingAmount = BIG_INT_ZERO
-    lendingPair.interestElasticity = lendingPairContract.interestElasticity()
     lendingPair.lastBlockAccrued = BIG_INT_ZERO
-    lendingPair.liquidationMultiplier = lendingPairContract.liquidationMultiplier()
     lendingPair.masterContract = lendingPairContract.masterContract()
-    lendingPair.maximumInterestPerBlock = lendingPairContract.maximumInterestPerBlock()
-    lendingPair.maximumTargetUtilization = lendingPairContract.maximumTargetUtilization()
-    lendingPair.minimumInterestPerBlock = lendingPairContract.minimumInterestPerBlock()
-    lendingPair.interestPerBlock = lendingPair.minimumInterestPerBlock
-    lendingPair.minimumTargetUtilization = lendingPairContract.minimumTargetUtilization()
     lendingPair.name = lendingPairContract.name()
-    lendingPair.openCollaterizationRate = lendingPairContract.openCollaterizationRate()
     lendingPair.oracle = lendingPairContract.oracle()
     lendingPair.owner = lendingPairContract.owner()
     lendingPair.pendingOwner = lendingPairContract.pendingOwner()
-    lendingPair.protocolFee = lendingPairContract.protocolFee()
-    lendingPair.startingInterestPerBlock = lendingPairContract.startingInterestPerBlock()
     lendingPair.symbol = lendingPairContract.symbol()
     lendingPair.totalAssetAmount = BIG_INT_ZERO
     lendingPair.totalAssetFraction = BIG_INT_ZERO
@@ -87,7 +74,7 @@ export function handleLogDeploy(event: LogDeploy): void {
 
     lendingPair.save()
 
-    LendingPairTemplate.create(event.params.clone_address)
+    LendingPairTemplate.create(event.params.cloneAddress)
   }
 }
 

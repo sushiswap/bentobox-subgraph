@@ -287,7 +287,7 @@ export function handleLogFeeTo(event: LogFeeTo): void {
 
 export function handleLogDev(event: LogDev): void {
   const lendingPair = LendingPair.load(event.address.toHex())
-  lendingPair.dev = event.params.newFeeTo
+  lendingPair.dev = event.params.newDev
   lendingPair.block = event.block.number
   lendingPair.timestamp = event.block.timestamp
   lendingPair.save()
