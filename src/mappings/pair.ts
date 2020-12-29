@@ -53,7 +53,7 @@ export function handleLogAddAsset(event: LogAddAsset): void {
   userData.save()
 
   //const tid = lendingPair.asset.toHex()
-  const asset = getToken(lendingPair.asset as Address, event.block)
+  const asset = getToken(Address.fromString(lendingPair.asset), event.block)
   const assetTx = new PairTx(getUniqueId(event))
   assetTx.root = getUserLendingPairDataId(event.params.user, event.address)
   assetTx.amount = amount
@@ -87,7 +87,7 @@ export function handleLogAddBorrow(event: LogAddBorrow): void {
   user.save()
 
   //const tid = lendingPair.asset.toHex()
-  const asset = getToken(lendingPair.asset as Address, event.block)
+  const asset = getToken(Address.fromString(lendingPair.asset), event.block)
   const borrowTx = new PairTx(getUniqueId(event))
   borrowTx.type = "borrowTx"
   borrowTx.root = getUserLendingPairDataId(event.params.user, event.address)
@@ -117,11 +117,11 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
   userData.userCollateralAmount = userData.userCollateralAmount.plus(amount)
   userData.save()
 
-  //let test_collateral = lendingPair.collateral as Token
+  //const test_collateral = lendingPair.collateral as Token
   log.info('lendingPair-id: {}, collateral: {}', [lid, lendingPair.collateral])
 
   //const tid = lendingPair.collateral.toHex()
-  const collateral = getToken(lendingPair.collateral as Address, event.block)
+  const collateral = getToken(Address.fromString(lendingPair.collateral), event.block)
   const collateralTx = new PairTx(getUniqueId(event))
   collateralTx.type = "collateralTx"
   collateralTx.root = getUserLendingPairDataId(event.params.user, event.address)
@@ -161,7 +161,7 @@ export function handleLogRemoveAsset(event: LogRemoveAsset): void {
   user.save()
 
   //const tid = lendingPair.asset.toHex()
-  const asset = getToken(lendingPair.asset as Address, event.block)
+  const asset = getToken(Address.fromString(lendingPair.asset), event.block)
   const assetTx = new PairTx(getUniqueId(event))
   assetTx.type = "assetTx"
   assetTx.root = getUserLendingPairDataId(event.params.user, event.address)
@@ -195,7 +195,7 @@ export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
   user.save()
 
   //const tid = lendingPair.asset.toHex()
-  const asset = getToken(lendingPair.asset as Address, event.block)
+  const asset = getToken(Address.fromString(lendingPair.asset), event.block)
   const borrowTx = new PairTx(getUniqueId(event))
   borrowTx.type = "borrowTx"
   borrowTx.root = getUserLendingPairDataId(event.params.user, event.address)
@@ -226,7 +226,7 @@ export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
   user.save()
 
   //const tid = lendingPair.collateral.toHex()
-  const collateral = getToken(lendingPair.collateral as Address, event.block)
+  const collateral = getToken(Address.fromString(lendingPair.collateral), event.block)
   const collateralTx = new PairTx(getUniqueId(event))
   collateralTx.type = "collateralTx"
   collateralTx.root = getUserLendingPairDataId(event.params.user, event.address)
