@@ -117,7 +117,8 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
   userData.userCollateralAmount = userData.userCollateralAmount.plus(amount)
   userData.save()
 
-  log.info('lendingPair-id: {}, collateral: ', [lid, lendingPair.collateral])
+  //let test_collateral = lendingPair.collateral as Token
+  log.info('lendingPair-id: {}, collateral: {}', [lid, lendingPair.collateral])
 
   //const tid = lendingPair.collateral.toHex()
   const collateral = getToken(lendingPair.collateral as Address, event.block)

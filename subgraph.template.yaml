@@ -26,7 +26,11 @@ dataSources:
         - name: LendingPair
           file: ./abis/LendingPair.json
         - name: ERC20
-          file: ./abis/ERC20.json
+          file: ./node_modules/@sushiswap/core/build/contracts/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
       eventHandlers:
         - event: LogDeploy(indexed address,bytes,indexed address)
           handler: handleLogDeploy

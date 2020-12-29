@@ -7,7 +7,7 @@ dataSources:
     name: BentoBox
     network: 'mainnet'
     source:
-      address: '0x37AFb60a724994975bf8DCfdA34eecB5e9c95943'
+      address: '0x37afb60a724994975bf8dcfda34eecb5e9c95943'
       abi: BentoBox
       startBlock: 11529750
     mapping:
