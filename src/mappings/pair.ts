@@ -21,7 +21,8 @@ import { getUser } from './helpers/getUser'
 import { getUniqueId } from './helpers/utils'
 import {BIG_INT_MINUS_ONE} from './helpers/constants'
 import { getUserLendingPairData, getUserLendingPairDataId } from './helpers/getUserLendingPairData'
-import { log } from '@graphprotocol/graph-ts'
+import { Address, log } from '@graphprotocol/graph-ts'
+import { getToken } from './helpers/getToken'
 
 export function handleApproval(event: Approval): void {
   log.info('[BentoBox:LendingPair] Approval {} {} {}', [
@@ -51,14 +52,14 @@ export function handleLogAddAsset(event: LogAddAsset): void {
   userData.balanceOf = userData.balanceOf.plus(fraction)
   userData.save()
 
-  const tid = lendingPair.asset.toHex()
-  const asset = Token.load(tid)
+  //const tid = lendingPair.asset.toHex()
+  const asset = getToken(lendingPair.asset as Address, event.block)
   const assetTx = new PairTx(getUniqueId(event))
   assetTx.root = getUserLendingPairDataId(event.params.user, event.address)
   assetTx.amount = amount
   assetTx.type = "assetTx"
   assetTx.lendingPair = lid
-  assetTx.token = tid
+  assetTx.token = asset.id
   assetTx.fraction = fraction
   assetTx.poolPercentage = fraction.div(lendingPair.totalAssetFraction)
   assetTx.block = event.block.number
@@ -85,14 +86,14 @@ export function handleLogAddBorrow(event: LogAddBorrow): void {
   user.userBorrowFraction = user.userBorrowFraction.plus(fraction)
   user.save()
 
-  const tid = lendingPair.asset.toHex()
-  const asset = Token.load(tid)
+  //const tid = lendingPair.asset.toHex()
+  const asset = getToken(lendingPair.asset as Address, event.block)
   const borrowTx = new PairTx(getUniqueId(event))
   borrowTx.type = "borrowTx"
   borrowTx.root = getUserLendingPairDataId(event.params.user, event.address)
   borrowTx.amount = amount
   borrowTx.lendingPair = lid
-  borrowTx.token = tid
+  borrowTx.token = asset.id
   borrowTx.fraction = fraction
   borrowTx.poolPercentage = fraction.div(lendingPair.totalBorrowFraction)
   borrowTx.block = event.block.number
@@ -116,13 +117,13 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
   userData.userCollateralAmount = userData.userCollateralAmount.plus(amount)
   userData.save()
 
-  const tid = lendingPair.collateral.toHex()
-  const collateral = Token.load(tid)
+  //const tid = lendingPair.collateral.toHex()
+  const collateral = getToken(lendingPair.collateral as Address, event.block)
   const collateralTx = new PairTx(getUniqueId(event))
   collateralTx.type = "collateralTx"
   collateralTx.root = getUserLendingPairDataId(event.params.user, event.address)
   collateralTx.lendingPair = lid
-  collateralTx.token = tid
+  collateralTx.token = collateral.id
   collateralTx.amount = amount
   collateralTx.poolPercentage = amount.div(lendingPair.totalCollateralAmount)
   collateralTx.block = event.block.number
@@ -156,13 +157,13 @@ export function handleLogRemoveAsset(event: LogRemoveAsset): void {
   user.balanceOf = user.balanceOf.minus(fraction)
   user.save()
 
-  const tid = lendingPair.asset.toHex()
-  const asset = Token.load(tid)
+  //const tid = lendingPair.asset.toHex()
+  const asset = getToken(lendingPair.asset as Address, event.block)
   const assetTx = new PairTx(getUniqueId(event))
   assetTx.type = "assetTx"
   assetTx.root = getUserLendingPairDataId(event.params.user, event.address)
   assetTx.lendingPair = lid
-  assetTx.token = tid
+  assetTx.token = asset.id
   assetTx.fraction = fraction
   assetTx.amount = amount
   assetTx.poolPercentage = fraction.div(lendingPair.totalAssetFraction)
@@ -190,13 +191,13 @@ export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
   user.userBorrowFraction = user.userBorrowFraction.minus(fraction)
   user.save()
 
-  const tid = lendingPair.asset.toHex()
-  const asset = Token.load(tid)
+  //const tid = lendingPair.asset.toHex()
+  const asset = getToken(lendingPair.asset as Address, event.block)
   const borrowTx = new PairTx(getUniqueId(event))
   borrowTx.type = "borrowTx"
   borrowTx.root = getUserLendingPairDataId(event.params.user, event.address)
   borrowTx.lendingPair = lid
-  borrowTx.token = tid
+  borrowTx.token = asset.id
   borrowTx.fraction = fraction
   borrowTx.amount = amount
   borrowTx.poolPercentage = fraction.div(lendingPair.totalBorrowFraction)
@@ -221,13 +222,13 @@ export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
   user.userCollateralAmount = user.userCollateralAmount.minus(amount)
   user.save()
 
-  const tid = lendingPair.collateral.toHex()
-  const collateral = Token.load(tid)
+  //const tid = lendingPair.collateral.toHex()
+  const collateral = getToken(lendingPair.collateral as Address, event.block)
   const collateralTx = new PairTx(getUniqueId(event))
   collateralTx.type = "collateralTx"
   collateralTx.root = getUserLendingPairDataId(event.params.user, event.address)
   collateralTx.lendingPair = lid
-  collateralTx.token = tid
+  collateralTx.token = collateral.id
   collateralTx.amount = amount
   collateralTx.poolPercentage = amount.div(lendingPair.totalCollateralAmount)
   collateralTx.block = event.block.number

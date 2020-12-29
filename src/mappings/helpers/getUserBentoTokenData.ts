@@ -1,10 +1,10 @@
 import { Address } from '@graphprotocol/graph-ts'
 import { BIG_INT_ZERO } from './constants'
-import { UserBentoTokenData } from '../../../generated/schema'
+import { UserBentoTokenData, Token } from '../../../generated/schema'
 
-export function getUserBentoTokenData(user: Address, token: Address): UserBentoTokenData {
+export function getUserBentoTokenData(user: Address, token: Token): UserBentoTokenData {
   const uid = user.toHex()
-  const tid = token.toHex()
+  const tid = token.id
   const id = uid.concat('-').concat(tid)
 
   let userBentoTokenData = UserBentoTokenData.load(id)
@@ -12,7 +12,7 @@ export function getUserBentoTokenData(user: Address, token: Address): UserBentoT
   if (userBentoTokenData === null) {
     userBentoTokenData = new UserBentoTokenData(id)
     userBentoTokenData.owner = uid
-    userBentoTokenData.token = tid
+    userBentoTokenData.token = token.id
     userBentoTokenData.amount = BIG_INT_ZERO
     userBentoTokenData.save()
   }

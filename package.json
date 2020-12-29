@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "yarn lint && graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ clearwood/bento",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ jiro-ono/bento-trial-staging",
     "create-local": "graph create --node http://localhost:8020/ matthewlilley/bento",
     "remove-local": "graph remove --node http://localhost:8020/ matthewlilley/bento",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 matthewlilley/bento",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@graphprotocol/graph-cli": "0.19.0",
     "@graphprotocol/graph-ts": "0.19.0",
+    "@sushiswap/core": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^4.0.0",
     "@typescript-eslint/parser": "^4.0.0",
     "eslint": "^7.0.0",

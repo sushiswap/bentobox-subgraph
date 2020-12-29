@@ -27,7 +27,7 @@ type Withdrawal @entity {
   id: ID!
   bentoBox: BentoBox!
   from: User!
-  to: Bytes!
+  to: User!
   token: Token!
   amount: BigInt!
   block: BigInt!
@@ -38,6 +38,9 @@ type Token @entity {
   id: ID!
   bentoBox: BentoBox!
   totalSupply: BigInt!
+  name: String!
+  symbol: String!
+  decimals: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }
@@ -100,9 +103,9 @@ type UserLendingPairData @entity {
 
 type LendingPair @entity {
   id: ID!
-  asset: Bytes!
+  asset: Token!
   bentoBox: BentoBox!
-  collateral: Bytes!
+  collateral: Token!
   decimals: Int!
   dev: Bytes
   exchangeRate: BigInt!
