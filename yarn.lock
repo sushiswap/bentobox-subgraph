@@ -324,6 +324,11 @@
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.8.2.tgz#a6a5e93ac8dca6884a99a532f133beba59b87b69"
 
+"@sushiswap/bentobox@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@sushiswap/bentobox/-/bentobox-0.3.0.tgz#c7f669d5f26417e7e705dfa2a1ac09676f294148"
+  integrity sha512-L2mUpGNaQYOLoFADDBHf2tQizt73E9Qm+cGBGFAbRVXfYPYSG8ZhyORcJrkLHkP87oSEkAUjh8znvd61KN66zQ==
+
 "@sushiswap/core@^1.0.0":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@sushiswap/core/-/core-1.4.1.tgz#c3adb42ce0388e6b88c26476ec882039ebd6aca3"
