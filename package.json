@@ -4,10 +4,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "yarn lint && graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ jiro-ono/bento-trial-staging",
-    "create-local": "graph create --node http://localhost:8020/ matthewlilley/bento",
-    "remove-local": "graph remove --node http://localhost:8020/ matthewlilley/bento",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 matthewlilley/bento",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ sushiswap/bento",
+    "create-local": "graph create --node http://localhost:8020/ sushiswap/bento",
+    "remove-local": "graph remove --node http://localhost:8020/ sushiswap/bento",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 sushiswap/bento",
     "lint": "eslint ./src --ext .ts --fix",
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "prepare:ropsten": "mustache config/ropsten.json subgraph.template.yaml > subgraph.yaml"
