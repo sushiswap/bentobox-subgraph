@@ -1,25 +1,35 @@
-import { Address, BigInt, log, ethereum } from '@graphprotocol/graph-ts'
-import { BIG_INT_ZERO, NULL_CALL_RESULT_VALUE, ADDRESS_ZERO } from './constants'
+import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { BIG_INT_ZERO, NULL_CALL_RESULT_VALUE } from '../constants'
 
-import { ERC20 } from '../../../generated/BentoBox/ERC20'
-import { ERC20NameBytes } from '../../../generated/BentoBox/ERC20NameBytes'
-import { ERC20SymbolBytes } from '../../../generated/BentoBox/ERC20SymbolBytes'
-import { Token } from '../../../generated/schema'
+import { ERC20 } from '../../generated/BentoBox/ERC20'
+import { ERC20NameBytes } from '../../generated/BentoBox/ERC20NameBytes'
+import { ERC20SymbolBytes } from '../../generated/BentoBox/ERC20SymbolBytes'
+import { Token } from '../../generated/schema'
+import { getBentoBox } from './bentobox'
 
-export function getToken(address: Address, block: ethereum.Block): Token | null {
+export function createToken(address: Address, block: ethereum.Block): Token {
+  const bentoBox = getBentoBox()
+
+  const token = new Token(address.toHex())
+
+  token.symbol = getSymbol(address)
+  token.bentoBox = bentoBox.id
+  token.name = getName(address)
+  token.decimals = getDecimals(address)
+  token.totalSupply = BIG_INT_ZERO
+  token.block = block.number
+  token.timestamp = block.timestamp
+
+  token.save()
+
+  return token as Token
+}
+
+export function getToken(address: Address, block: ethereum.Block): Token {
   let token = Token.load(address.toHex())
 
   if (token === null) {
-    token = new Token(address.toHex())
-    token.symbol = getSymbol(address)
-    token.bentoBox = ADDRESS_ZERO.toHex()
-    token.name = getName(address)
-    token.decimals = getDecimals(address)
-    token.totalSupply = BIG_INT_ZERO
-    token.block = block.number
-    token.timestamp = block.timestamp
-
-    token.save()
+    token = createToken(address, block)
   }
 
   return token as Token

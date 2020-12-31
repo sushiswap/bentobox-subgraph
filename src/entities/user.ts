@@ -1,6 +1,6 @@
 import { Address, ethereum } from '@graphprotocol/graph-ts'
 
-import { User } from '../../../generated/schema'
+import { User } from '../../generated/schema'
 
 export function getUser(address: Address, block: ethereum.Block): User {
   const uid = address.toHex()

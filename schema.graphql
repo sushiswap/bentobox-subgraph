@@ -1,107 +1,61 @@
-# Global
+enum BentoBoxActionType {
+  deposit
+  withdraw
+}
+
+type BentoBoxAction @entity {
+  id: ID!
+  bentoBox: BentoBox!
+  type: BentoBoxActionType!
+  from: User!
+  to: User!
+  token: Token!
+  amount: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
 type BentoBox @entity {
   # Contract ID
   id: ID!
-  lendingPairs: [LendingPair!]! @derivedFrom(field: "bentoBox")
+  pairs: [Pair!]! @derivedFrom(field: "bentoBox")
   tokens: [Token!] @derivedFrom(field: "bentoBox")
   WethToken: Bytes!
-  withdrawals: [Withdrawal!] @derivedFrom(field: "bentoBox")
-  deposits: [Deposit!] @derivedFrom(field: "bentoBox")
+  withdrawals: [BentoBoxAction!] @derivedFrom(field: "bentoBox")
+  deposits: [BentoBoxAction!] @derivedFrom(field: "bentoBox")
   lendingPairsCount: BigInt!
-}
-
-type Deposit @entity {
-  id: ID!
-  bentoBox: BentoBox!
-  from: User!
-  to: User!
-  token: Token!
-  amount: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-
-
-type Withdrawal @entity {
-  id: ID!
-  bentoBox: BentoBox!
-  from: User!
-  to: User!
-  token: Token!
-  amount: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-type Token @entity {
-  id: ID!
-  bentoBox: BentoBox!
-  totalSupply: BigInt!
-  name: String!
-  symbol: String!
-  decimals: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-type User @entity {
-  id: ID!
-  lendingPairs: [UserLendingPairData!] @derivedFrom(field: "owner")
-  bentoData: [UserBentoTokenData!] @derivedFrom(field: "owner")
-  masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "owner")
-  withdrawals: [Withdrawal!] @derivedFrom(field: "from")
-  deposits: [Deposit!] @derivedFrom(field: "to")
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-type UserBentoTokenData @entity {
-  # concatenate UserAddress with TokenAddress
-  id: ID!
-  owner: User!
-  token: Token!
-  amount: BigInt!
 }
 
 type MasterContractApproval @entity {
   # concatenate UserAddress with MasterContract
   id: ID!
-  owner: User!
+  user: User!
   approved: Boolean!
 }
 
-enum PairTransactionType {
-  assetTx
-  collateralTx
-  borrowTx
+enum PairActionType {
+  addAsset
+  removeAsset
+  addCollateral
+  removeCollateral
+  addBorrow
+  removeBorrow
 }
 
-type PairTx @entity {
-    id: ID!
-    type: PairTransactionType!
-    lendingPair: LendingPair!
-    token: Token!
-    root: UserLendingPairData!
-    amount: BigInt!
-    fraction: BigInt
-    poolPercentage: BigInt!
-    block: BigInt!
-    timestamp: BigInt!
-}
-
-type UserLendingPairData @entity {
-  # concatenate UserAddress with LendingPairAddress
+type PairAction @entity {
   id: ID!
-  lendingPair: LendingPair!
-  owner: User!
-  userCollateralAmount: BigInt!
-  balanceOf: BigInt!
-  userBorrowFraction: BigInt!
-  transactions: [PairTx!] @derivedFrom(field: "root")
+  type: PairActionType!
+  pair: Pair!
+  token: Token!
+  root: UserPair!
+  amount: BigInt!
+  fraction: BigInt
+  poolPercentage: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
 }
 
-type LendingPair @entity {
+type Pair @entity {
   id: ID!
   asset: Token!
   bentoBox: BentoBox!
@@ -127,5 +81,48 @@ type LendingPair @entity {
   utilization: BigInt!
   block: BigInt!
   timestamp: BigInt!
-  transactions: [PairTx!] @derivedFrom(field: "lendingPair")
+  transactions: [PairAction!] @derivedFrom(field: "pair")
+}
+
+
+
+type Token @entity {
+  id: ID!
+  bentoBox: BentoBox!
+  totalSupply: BigInt!
+  name: String!
+  symbol: String!
+  decimals: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+type UserPair @entity {
+  # concatenate UserAddress with LendingPairAddress
+  id: ID!
+  pair: Pair!
+  user: User!
+  userCollateralAmount: BigInt!
+  balanceOf: BigInt!
+  userBorrowFraction: BigInt!
+  transactions: [PairAction!] @derivedFrom(field: "root")
+}
+
+type UserToken @entity {
+  # concatenate UserAddress with TokenAddress
+  id: ID!
+  user: User!
+  token: Token!
+  amount: BigInt!
+}
+
+type User @entity {
+  id: ID!
+  pairs: [UserPair!] @derivedFrom(field: "user")
+  balances: [UserToken!] @derivedFrom(field: "user")
+  masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "user")
+  withdrawals: [BentoBoxAction!] @derivedFrom(field: "from")
+  deposits: [BentoBoxAction!] @derivedFrom(field: "to")
+  block: BigInt!
+  timestamp: BigInt!
 }

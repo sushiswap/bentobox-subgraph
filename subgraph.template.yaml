@@ -23,7 +23,7 @@ dataSources:
       abis:
         - name: BentoBox
           file: ./node_modules/@sushiswap/bentobox/deployments/{{ network }}/BentoBox.json
-        - name: LendingPair
+        - name: Pair
           file: ./node_modules/@sushiswap/bentobox/deployments/{{ network }}/LendingPair.json
         - name: ERC20
           file: ./node_modules/@sushiswap/core/build/contracts/ERC20.json
@@ -46,10 +46,10 @@ dataSources:
 
 templates:
   - kind: ethereum/contract
-    name: LendingPair
+    name: Pair
     network: "{{ network }}"
     source:
-      abi: LendingPair
+      abi: Pair
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -66,7 +66,7 @@ templates:
         - OwnershipTransferred
         - Transfer
       abis:
-        - name: LendingPair
+        - name: Pair
           file: ./node_modules/@sushiswap/bentobox/deployments/{{ network }}/LendingPair.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
