@@ -20,5 +20,7 @@ export function createBentoBoxAction(event: ethereum.Event, type: string): Bento
   action.block = event.block.number
   action.timestamp = event.block.timestamp
 
+  action.save()
+
   return action as BentoBoxAction
 }

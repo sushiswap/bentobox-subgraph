@@ -1,4 +1,4 @@
-import { BENTOBOX_DEPOSIT, BENTOBOX_WITHDRAW, MEDIUM_RISK_LENDING_PAIR_MASTER } from '../constants'
+import { BENTOBOX_DEPOSIT, BENTOBOX_MEDIUM_RISK_PAIR, BENTOBOX_TRANSFER, BENTOBOX_WITHDRAW } from '../constants'
 import {
   LogDeploy,
   LogDeposit,
@@ -27,9 +27,8 @@ export function handleLogDeploy(event: LogDeploy): void {
     event.params.masterContract.toHex(),
   ])
 
-  if (event.params.masterContract == MEDIUM_RISK_LENDING_PAIR_MASTER) {
-    const pair = createPair(event.params.cloneAddress, event.block)
-    pair.save()
+  if (event.params.masterContract == BENTOBOX_MEDIUM_RISK_PAIR) {
+    createPair(event.params.cloneAddress, event.block)
 
     incrementLendingPairsCount()
 
@@ -53,8 +52,7 @@ export function handleLogDeposit(event: LogDeposit): void {
   userTokenData.amount = userTokenData.amount.plus(event.params.amount)
   userTokenData.save()
 
-  const action = createBentoBoxAction(event, BENTOBOX_DEPOSIT)
-  action.save()
+  createBentoBoxAction(event, BENTOBOX_DEPOSIT)
 }
 
 export function handleLogSetMasterContractApproval(event: LogSetMasterContractApproval): void {
@@ -83,11 +81,11 @@ export function handleLogTransfer(event: LogTransfer): void {
   sender.amount = sender.amount.minus(event.params.amount)
   sender.save()
 
-  getUser(event.params.to, event.block)
-
   const receiver = getUserToken(getUser(event.params.to, event.block) as User, token as Token)
   receiver.amount = receiver.amount.plus(event.params.amount)
   receiver.save()
+
+  createBentoBoxAction(event, BENTOBOX_TRANSFER)
 }
 
 export function handleLogWithdraw(event: LogWithdraw): void {
@@ -103,10 +101,9 @@ export function handleLogWithdraw(event: LogWithdraw): void {
   token.totalSupply = token.totalSupply.minus(event.params.amount)
   token.save()
 
-  const action = createBentoBoxAction(event, BENTOBOX_WITHDRAW)
-  action.save()
-
   const sender = getUserToken(getUser(event.params.from, event.block) as User, token as Token)
   sender.amount = sender.amount.minus(event.params.amount)
   sender.save()
+
+  createBentoBoxAction(event, BENTOBOX_WITHDRAW)
 }

@@ -9,7 +9,6 @@ import { getBentoBox } from './bentobox'
 export function createPair(address: Address, block: ethereum.Block): Pair {
   const bentoBox = getBentoBox()
 
-  // Bind to contract for easy data access on creation
   const pairContract = PairContract.bind(address)
 
   const pair = new Pair(address.toHex())
@@ -42,6 +41,8 @@ export function createPair(address: Address, block: ethereum.Block): Pair {
   pair.utilization = BIG_INT_ZERO
   pair.block = block.number
   pair.timestamp = block.timestamp
+
+  pair.save()
 
   return pair as Pair
 }

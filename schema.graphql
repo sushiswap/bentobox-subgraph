@@ -1,5 +1,6 @@
 enum BentoBoxActionType {
   deposit
+  transfer
   withdraw
 }
 
@@ -21,8 +22,7 @@ type BentoBox @entity {
   pairs: [Pair!]! @derivedFrom(field: "bentoBox")
   tokens: [Token!] @derivedFrom(field: "bentoBox")
   WethToken: Bytes!
-  withdrawals: [BentoBoxAction!] @derivedFrom(field: "bentoBox")
-  deposits: [BentoBoxAction!] @derivedFrom(field: "bentoBox")
+  transactions: [BentoBoxAction!] @derivedFrom(field: "bentoBox")
   lendingPairsCount: BigInt!
 }
 
@@ -118,8 +118,8 @@ type UserToken @entity {
 
 type User @entity {
   id: ID!
-  pairs: [UserPair!] @derivedFrom(field: "user")
-  balances: [UserToken!] @derivedFrom(field: "user")
+  pairBalances: [UserPair!] @derivedFrom(field: "user")
+  tokenBalances: [UserToken!] @derivedFrom(field: "user")
   masterContractApprovals: [MasterContractApproval!] @derivedFrom(field: "user")
   withdrawals: [BentoBoxAction!] @derivedFrom(field: "from")
   deposits: [BentoBoxAction!] @derivedFrom(field: "to")

@@ -15,6 +15,7 @@ import {
   Transfer,
 } from '../../generated/templates/LendingPair/LendingPair'
 import {
+  BIG_INT_ONE_HUNDRED,
   PAIR_ADD_ASSET,
   PAIR_ADD_BORROW,
   PAIR_ADD_COLLATERAL,
@@ -56,7 +57,7 @@ export function handleLogAddAsset(event: LogAddAsset): void {
   userData.save()
 
   const action = createPairAction(event, PAIR_ADD_ASSET)
-  action.poolPercentage = fraction.div(pair.totalAssetFraction)
+  action.poolPercentage = fraction.div(pair.totalAssetFraction).times(BIG_INT_ONE_HUNDRED)
   action.save()
 }
 
@@ -79,7 +80,7 @@ export function handleLogAddBorrow(event: LogAddBorrow): void {
   user.save()
 
   const action = createPairAction(event, PAIR_ADD_BORROW)
-  action.poolPercentage = fraction.div(pair.totalBorrowFraction)
+  action.poolPercentage = fraction.div(pair.totalBorrowFraction).times(BIG_INT_ONE_HUNDRED)
   action.save()
 }
 
@@ -104,7 +105,7 @@ export function handleLogAddCollateral(event: LogAddCollateral): void {
   log.info('pair-id: {}, collateral: {}', [event.address.toHex(), pair.collateral])
 
   const action = createPairAction(event, PAIR_ADD_COLLATERAL)
-  action.poolPercentage = amount.div(pair.totalCollateralAmount)
+  action.poolPercentage = amount.div(pair.totalCollateralAmount).times(BIG_INT_ONE_HUNDRED)
   action.save()
 }
 
@@ -121,12 +122,14 @@ export function handleLogRemoveAsset(event: LogRemoveAsset): void {
     event.params.amount.toString(),
     event.params.user.toHex(),
   ])
+
   const fraction = event.params.fraction
+
   const amount = event.params.amount
 
   const pair = getPair(event.address, event.block)
 
-  const poolPercentage = fraction.div(pair.totalAssetFraction)
+  const poolPercentage = fraction.div(pair.totalAssetFraction).times(BIG_INT_ONE_HUNDRED)
 
   pair.totalAssetFraction = pair.totalAssetFraction.minus(fraction)
   pair.totalAssetAmount = pair.totalAssetAmount.minus(amount)
@@ -152,7 +155,7 @@ export function handleLogRemoveBorrow(event: LogRemoveBorrow): void {
 
   const pair = getPair(event.address, event.block)
 
-  const poolPercentage = fraction.div(pair.totalBorrowFraction)
+  const poolPercentage = fraction.div(pair.totalBorrowFraction).times(BIG_INT_ONE_HUNDRED)
 
   pair.totalBorrowFraction = pair.totalBorrowFraction.minus(fraction)
   pair.totalBorrowAmount = pair.totalBorrowAmount.minus(amount)
@@ -176,7 +179,7 @@ export function handleLogRemoveCollateral(event: LogRemoveCollateral): void {
 
   const pair = getPair(event.address, event.block)
 
-  const poolPercentage = amount.div(pair.totalCollateralAmount)
+  const poolPercentage = amount.div(pair.totalCollateralAmount).times(BIG_INT_ONE_HUNDRED)
 
   pair.totalCollateralAmount = pair.totalCollateralAmount.minus(amount)
   pair.save()
@@ -211,7 +214,7 @@ export function handleTransfer(event: Transfer): void {
   sender.balanceOf = sender.balanceOf.minus(event.params._value)
   sender.save()
 
-  const user = getUser(event.params._to, event.block)
+  getUser(event.params._to, event.block)
   const receiver = getUserPair(event.params._to, event.address)
   receiver.balanceOf = receiver.balanceOf.plus(event.params._value)
   receiver.save()
