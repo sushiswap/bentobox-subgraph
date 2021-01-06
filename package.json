@@ -3,22 +3,31 @@
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
-    "build": "yarn lint && graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ clearwood/bento",
-    "create-local": "graph create --node http://localhost:8020/ matthewlilley/bento",
-    "remove-local": "graph remove --node http://localhost:8020/ matthewlilley/bento",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 matthewlilley/bento",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ sushiswap/bento",
+    "create-local": "graph create --node http://localhost:8020/ sushiswap/bento",
+    "remove-local": "graph remove --node http://localhost:8020/ sushiswap/bento",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 sushiswap/bento",
     "lint": "eslint ./src --ext .ts --fix",
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "prepare:ropsten": "mustache config/ropsten.json subgraph.template.yaml > subgraph.yaml"
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn lint"
+    }
+  },
   "devDependencies": {
     "@graphprotocol/graph-cli": "0.19.0",
     "@graphprotocol/graph-ts": "0.19.0",
+    "@sushiswap/bentobox": "^0.3.0",
+    "@sushiswap/core": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^4.0.0",
     "@typescript-eslint/parser": "^4.0.0",
     "eslint": "^7.0.0",
-    "eslint-config-prettier": "^6.0.0",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "husky": "^4.0.0",
     "mustache": "^4.0.0",
     "prettier": "^2.0.0",
     "typescript": "^4.0.0"

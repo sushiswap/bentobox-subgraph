@@ -22,11 +22,15 @@ dataSources:
         - LogWithdraw
       abis:
         - name: BentoBox
-          file: ./abis/BentoBox.json
-        - name: LendingPair
-          file: ./abis/LendingPair.json
+          file: ./node_modules/@sushiswap/bentobox/deployments/{{ network }}/BentoBox.json
+        - name: Pair
+          file: ./node_modules/@sushiswap/bentobox/deployments/{{ network }}/LendingPair.json
         - name: ERC20
-          file: ./abis/ERC20.json
+          file: ./node_modules/@sushiswap/core/build/contracts/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
       eventHandlers:
         - event: LogDeploy(indexed address,bytes,indexed address)
           handler: handleLogDeploy
@@ -42,10 +46,10 @@ dataSources:
 
 templates:
   - kind: ethereum/contract
-    name: LendingPair
+    name: Pair
     network: "{{ network }}"
     source:
-      abi: LendingPair
+      abi: Pair
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -62,8 +66,8 @@ templates:
         - OwnershipTransferred
         - Transfer
       abis:
-        - name: LendingPair
-          file: ./abis/LendingPair.json
+        - name: Pair
+          file: ./node_modules/@sushiswap/bentobox/deployments/{{ network }}/LendingPair.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval

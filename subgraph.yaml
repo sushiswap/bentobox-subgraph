@@ -5,11 +5,11 @@ dataSources:
   # BentoBox
   - kind: ethereum/contract
     name: BentoBox
-    network: 'ropsten'
+    network: 'mainnet'
     source:
-      address: '0xAac3d83Af05428A2283FB762Ae99C07FF85d7602'
+      address: '0x37afb60a724994975bf8dcfda34eecb5e9c95943'
       abi: BentoBox
-      startBlock: 9244711
+      startBlock: 11529750
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -22,11 +22,15 @@ dataSources:
         - LogWithdraw
       abis:
         - name: BentoBox
-          file: ./abis/BentoBox.json
-        - name: LendingPair
-          file: ./abis/LendingPair.json
+          file: ./node_modules/@sushiswap/bentobox/deployments/mainnet/BentoBox.json
+        - name: Pair
+          file: ./node_modules/@sushiswap/bentobox/deployments/mainnet/LendingPair.json
         - name: ERC20
-          file: ./abis/ERC20.json
+          file: ./node_modules/@sushiswap/core/build/contracts/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
       eventHandlers:
         - event: LogDeploy(indexed address,bytes,indexed address)
           handler: handleLogDeploy
@@ -42,10 +46,10 @@ dataSources:
 
 templates:
   - kind: ethereum/contract
-    name: LendingPair
-    network: "ropsten"
+    name: Pair
+    network: "mainnet"
     source:
-      abi: LendingPair
+      abi: Pair
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -62,8 +66,8 @@ templates:
         - OwnershipTransferred
         - Transfer
       abis:
-        - name: LendingPair
-          file: ./abis/LendingPair.json
+        - name: Pair
+          file: ./node_modules/@sushiswap/bentobox/deployments/mainnet/LendingPair.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval

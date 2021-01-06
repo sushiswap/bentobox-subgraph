@@ -1,16 +1,14 @@
 import { Address } from '@graphprotocol/graph-ts'
-import { MasterContractApproval } from '../../../generated/schema'
+import { MasterContractApproval } from '../../generated/schema'
 
 export function getMasterContractApproval(user: Address, masterContract: Address): MasterContractApproval {
-  const uid = user.toHex()
-  const mid = masterContract.toHex()
-  const id = uid.concat('-').concat(mid)
+  const id = user.toHex().concat('-').concat(masterContract.toHex())
 
   let masterContractApproval = MasterContractApproval.load(id)
 
   if (masterContractApproval === null) {
     masterContractApproval = new MasterContractApproval(id)
-    masterContractApproval.owner = uid
+    masterContractApproval.user = user.toHex()
     masterContractApproval.approved = false
     masterContractApproval.save()
   }
